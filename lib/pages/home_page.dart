@@ -25,11 +25,13 @@ class _HomePageState extends State<HomePage> {
 
   _checkSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    var locale = EnumToString.fromString(
-        DTCLocalization.values, prefs.getString('dtcLocale')!)!;
-    setState(() {
-      _settingsProvider.changeDTCLocalization(locale);
-    });
+    if (prefs.getString('dtcLocale') != null) {
+      var locale = EnumToString.fromString(
+          DTCLocalization.values, prefs.getString('dtcLocale')!)!;
+      setState(() {
+        _settingsProvider.changeDTCLocalization(locale);
+      });
+    }
   }
 
   _drawerNavigate(BuildContext context, Widget page) async {
