@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dtc_manager/constants.dart';
-import 'package:dtc_manager/pages/settings/settings_page.dart';
-import 'package:dtc_manager/pages/troubleshoot/detail_page.dart';
+import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';

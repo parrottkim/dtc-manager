@@ -107,11 +107,12 @@ flutter:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icons/kaga-transparent.png"
-  adaptive_icon_background: "#000000"
+  image_path: "assets/icons/kaga-launcher.png"
+  image_path_ios: "assets/icons/kaga.png"
+  adaptive_icon_background: "assets/background.png"
+  adaptive_icon_foreground: "assets/icons/kaga-launcher.png"
 
 flutter_native_splash:
-
   # This package generates native code to customize Flutter's default white native splash screen
   # with background color and splash image.
   # Customize the parameters below, and run the following command in the terminal:
@@ -131,7 +132,7 @@ flutter_native_splash:
 
   # The image parameter allows you to specify an image used in the splash screen.  It must be a
   # png file and should be sized for 4x pixel density.
-  image: assets/icons/kaga-transparent.png
+  image: assets/icons/kaga-splash.png
 
   # The branding property allows you to specify an image used as branding in the splash screen.
   # It must be a png file. Currently, it is only supported for Android < v12 and iOS.

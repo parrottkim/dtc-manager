@@ -36,7 +36,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
-      title: MainLogo(subtitle: '${'settings'.tr()} > ${'settings1'.tr()}'),
+      title: MainLogo(subtitle: '${'settings2'.tr()} > ${'settings2-1'.tr()}'),
     );
   }
 
@@ -44,40 +44,41 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
     final List<dynamic> _settingsItems = [
       {
         'title': Text(
-          'language1'.tr(),
+          'language1',
           style: TextStyle(
             fontWeight: FontWeight.w600,
           ),
-        ),
+        ).tr(),
         'items': [
           {
-            'title': 'language1-1'.tr(),
+            'title': 'language1-1',
             'locale': Locale('en', 'US'),
           },
           {
-            'title': 'language1-2'.tr(),
+            'title': 'language1-2',
             'locale': Locale('ko', 'KR'),
           },
         ],
       },
       {
         'title': Text(
-          'language2'.tr(),
+          'language2',
           style: TextStyle(
             fontWeight: FontWeight.w600,
           ),
-        ),
+        ).tr(),
+        'subtitle': Text('language2-1').tr(),
         'items': [
           {
-            'title': 'language2-1'.tr(),
+            'title': 'language2-2',
             'locale': DTCLocalization.enUS,
           },
           {
-            'title': 'language2-2'.tr(),
+            'title': 'language2-3',
             'locale': DTCLocalization.koKR,
           },
           {
-            'title': 'language2-3'.tr(),
+            'title': 'language2-4',
             'locale': DTCLocalization.both,
           },
         ],
@@ -100,10 +101,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                       var item = _settingsItems[0]['items'].elementAt(index);
                       return ListTile(
                         onTap: () async {
-                          setState(() {
-                            EasyLocalization.of(context)!
-                                .setLocale(item['locale']);
-                          });
+                          await context.setLocale(item['locale']);
+                          print(context.locale.toString());
                         },
                         minLeadingWidth: 0.0,
                         leading: context.locale == item['locale']
@@ -119,7 +118,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                                 ? Colors.redAccent
                                 : Colors.black.withOpacity(0.7),
                           ),
-                        ),
+                        ).tr(),
                       );
                     },
                   ),
@@ -127,6 +126,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
               ),
               ExpansionTile(
                 title: _settingsItems[1]['title'],
+                subtitle: _settingsItems[1]['subtitle'],
                 children: [
                   ListView.builder(
                     shrinkWrap: true,
@@ -160,7 +160,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                                 ? Colors.redAccent
                                 : Colors.black.withOpacity(0.7),
                           ),
-                        ),
+                        ).tr(),
                       );
                     },
                   ),

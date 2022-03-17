@@ -1,7 +1,8 @@
 import 'package:dtc_manager/constants.dart';
-import 'package:dtc_manager/pages/dtc_list/dtc_list_page.dart';
-import 'package:dtc_manager/pages/settings/settings_page.dart';
-import 'package:dtc_manager/pages/troubleshoot/troubleshoot_page.dart';
+import 'package:dtc_manager/pages/database_pages/database_page.dart';
+import 'package:dtc_manager/pages/dtc_list_pages/dtc_list_page.dart';
+import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/troubleshoot_page.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -47,41 +48,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _pages = {
-      'homePage1'.tr(): null,
-      'homePage2'.tr(): null,
-      'homePage3'.tr(): DTCListPage(),
-      'homePage4'.tr(): TroubleshootPage(),
-    };
-    _drawerItems = [
-      {
-        'leading': const Icon(Icons.settings, color: Colors.black),
-        'title': Text(
-          'settings'.tr(),
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        'route': SettingsPage(),
-      },
-      {
-        'leading': const Icon(Icons.format_list_bulleted, color: Colors.black),
-        'title': Text(
-          'settings'.tr(),
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        'route': SettingsPage(),
-      },
-    ];
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -92,7 +58,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  AppBar _appBar() {
+    return AppBar(
+      titleSpacing: 0.0,
+      title: MainLogo(),
+    );
+  }
+
   Widget _bodyWidget() {
+    _pages = {
+      'homePage1'.tr(): null,
+      'homePage2'.tr(): null,
+      'homePage3'.tr(): DTCListPage(),
+      'homePage4'.tr(): TroubleshootPage(),
+    };
+    _drawerItems = [
+      {
+        'leading': const Icon(Icons.table_rows, color: Colors.black),
+        'title': Text(
+          'settings1'.tr(),
+          style: TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        'route': DatabasePage(),
+      },
+      {
+        'leading': const Icon(Icons.settings, color: Colors.black),
+        'title': Text(
+          'settings2'.tr(),
+          style: TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        'route': SettingsPage(),
+      },
+    ];
+
     return Column(
       children: [
         Expanded(
@@ -157,13 +161,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
-  }
-
-  AppBar _appBar() {
-    return AppBar(
-      titleSpacing: 0.0,
-      title: MainLogo(),
     );
   }
 }

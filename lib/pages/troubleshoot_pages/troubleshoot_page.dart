@@ -1,4 +1,4 @@
-import 'package:dtc_manager/pages/troubleshoot/detail_page.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';

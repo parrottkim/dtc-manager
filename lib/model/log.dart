@@ -4,21 +4,21 @@ import 'package:mysql1/mysql1.dart';
 
 class Log {
   DateTime date;
-  String model;
+  int codeId;
+  int modelId;
   String bodyNo;
-  String code;
+  String writer;
   String description;
   File photo;
   String photoName;
-  String writer;
 
   Log(
       {required this.date,
-      required this.model,
+      required this.codeId,
+      required this.modelId,
       required this.bodyNo,
-      required this.code,
+      required this.writer,
       required this.description,
       required this.photo,
-      required this.photoName,
-      required this.writer});
+      required this.photoName});
 }

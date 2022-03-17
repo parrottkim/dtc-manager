@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dtc_manager/model/log.dart';
-import 'package:dtc_manager/pages/troubleshoot/detail_page.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
@@ -184,7 +184,7 @@ class _UploadPageState extends State<UploadPage> {
                     _vehicleIdController.clear();
                     _vehicleNoController.clear();
                     _isBodyNumberEditing = false;
-                    _vehicleIdController.text += value['code'].toString();
+                    _vehicleIdController.text += value['model_code'].toString();
                   }
                 });
                 WidgetsBinding.instance!.addPostFrameCallback((_) =>
@@ -321,14 +321,13 @@ class _UploadPageState extends State<UploadPage> {
                       await _mariaDBProvider.uploadLog(
                         Log(
                           date: DateTime.now().toUtc(),
-                          model: _selectedModel!['model'].toString(),
-                          bodyNo:
-                              '${_vehicleIdController.text} ${_vehicleNoController.text}',
-                          code: widget.result['code'].toString(),
+                          codeId: widget.result['code_id'] as int,
+                          modelId: _selectedModel!['model_id'] as int,
+                          bodyNo: _vehicleNoController.text,
+                          writer: _writerController.text,
                           description: _descriptionController.text,
                           photo: _image!,
                           photoName: _imageName!,
-                          writer: _writerController.text,
                         ),
                       );
                       _bottomNavigationProvider.updatePage(2);

@@ -39,7 +39,7 @@ class _LogPageState extends State<LogPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _mariaDBProvider.getDTCCodeLogs(widget.result['code'].toString()),
+      future: _mariaDBProvider.getDTCCodeLogs(widget.result['code_id'] as int),
       builder: (context, snapshot) {
         if (_mariaDBProvider.log == null)
           return Center(child: CircularProgressIndicator());
@@ -50,34 +50,44 @@ class _LogPageState extends State<LogPage> {
             return InkWell(
               onTap: () {},
               child: ExpansionTile(
-                title: Row(
+                leading: Container(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 2.0, horizontal: 6.0),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
+                    border: Border.all(
+                      width: 0.5,
+                      color: Colors.black,
+                    ),
+                  ),
+                  child: Text(
+                    '${_mariaDBProvider.log![index]['model']}',
+                    style: TextStyle(
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 2.0, horizontal: 6.0),
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
-                        border: Border.all(
-                          width: 0.5,
-                          color: Colors.black,
-                        ),
-                      ),
-                      child: Text(
-                        '${_mariaDBProvider.log![index]['model']}',
-                        style: TextStyle(
-                            fontSize: 12.0, fontWeight: FontWeight.w500),
+                    Text(
+                      '${_mariaDBProvider.log![index]['model_code']} ${_mariaDBProvider.log![index]['body_no']}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(width: 8.0),
-                    Text('${_mariaDBProvider.log![index]['body_no']}',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    Text(
+                      DateFormat('yyyy.MM.dd HH:mm')
+                          .format(_mariaDBProvider.log![index]['date']),
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black.withOpacity(0.4),
+                      ),
+                    ),
                   ],
-                ),
-                subtitle: Text(
-                  DateFormat('yyyy.MM.dd HH:mm')
-                      .format(_mariaDBProvider.log![index]['date']),
                 ),
                 children: [
                   Container(

@@ -1,4 +1,4 @@
-import 'package:dtc_manager/pages/settings/language_settings_page.dart';
+import 'package:dtc_manager/pages/settings_pages/language_settings_page.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -14,23 +14,6 @@ class _SettingsPageState extends State<SettingsPage> {
   late List<dynamic> _settingsItems;
 
   @override
-  void initState() {
-    super.initState();
-    _settingsItems = [
-      {
-        'leading': const Icon(Icons.format_list_bulleted, color: Colors.black),
-        'title': Text('settings1'.tr(), style: TextStyle(fontSize: 18.0)),
-        'route': LanguageSettingsPage(),
-      },
-      {
-        'leading': const Icon(Icons.language, color: Colors.black),
-        'title': Text('settings2'.tr(), style: TextStyle(fontSize: 18.0)),
-        'route': LanguageSettingsPage(),
-      },
-    ];
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -43,11 +26,19 @@ class _SettingsPageState extends State<SettingsPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
-      title: MainLogo(subtitle: 'settings1'.tr()),
+      title: MainLogo(subtitle: 'settings2'.tr()),
     );
   }
 
   Widget _bodyWidget() {
+    _settingsItems = [
+      {
+        'leading': const Icon(Icons.language, color: Colors.black),
+        'title': Text('settings2-1', style: TextStyle(fontSize: 18.0)).tr(),
+        'route': LanguageSettingsPage(),
+      },
+    ];
+
     return Column(
       children: [
         Expanded(

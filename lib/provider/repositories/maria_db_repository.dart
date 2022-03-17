@@ -13,8 +13,8 @@ class MariaDBRepository {
       ),
     );
 
-    var result = await conn.query(
-        'select * from dtc_manager.dtc_codes_temp where code = ?', [flag]);
+    var result =
+        await conn.query('select * from codes_temp where code = ?', [flag]);
     await conn.close();
     return result.toList();
   }
@@ -32,11 +32,10 @@ class MariaDBRepository {
 
     var result;
     if (subsystem == null) {
-      result = await conn.query('select * from dtc_manager.dtc_codes_temp');
+      result = await conn.query('select * from codes_temp');
     } else {
-      result = await conn.query(
-          'select * from dtc_manager.dtc_codes_temp where sub_system = ?',
-          [subsystem]);
+      result = await conn
+          .query('select * from codes_temp where sub_system = ?', [subsystem]);
     }
     await conn.close();
     return result.toList();
@@ -54,13 +53,13 @@ class MariaDBRepository {
     );
 
     var result = await conn.query(
-        'select * from dtc_manager.dtc_codes_temp where en_description like ? or kr_description like ? or code like ?',
+        'select * from codes_temp where en_description like ? or kr_description like ? or code like ?',
         ['%$flag%', '%$flag%', '%$flag%']);
     await conn.close();
     return result.toList();
   }
 
-  Future getDTCCodeLogs(String flag) async {
+  Future getDTCCodeLogs(int flag) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
         host: '192.168.150.113',
@@ -72,7 +71,7 @@ class MariaDBRepository {
     );
 
     var result = await conn.query(
-        'select * from dtc_manager.dtc_codes_log where code = ? order by date desc',
+        'select * from logs left join models on logs.model_id = models.model_id where code_id = ? order by date desc',
         [flag]);
     await conn.close();
     return result.toList();
@@ -89,7 +88,7 @@ class MariaDBRepository {
       ),
     );
 
-    var result = await conn.query('select * from dtc_manager.models');
+    var result = await conn.query('select * from models');
     await conn.close();
     return result.toList();
   }
@@ -106,16 +105,16 @@ class MariaDBRepository {
     );
 
     var result = await conn.query(
-      'insert into dtc_manager.dtc_codes_log (date, model, body_no, code, description, photo, photo_name, writer) values (?, ?, ?, ?, ?, ?, ?, ?)',
+      'insert into logs (date, code_id, model_id, body_no, writer, description, photo, photo_name) values (?, ?, ?, ?, ?, ?, ?, ?)',
       [
         log.date,
-        log.model,
+        log.codeId,
+        log.modelId,
         log.bodyNo,
-        log.code,
+        log.writer,
         log.description,
         log.photo.readAsBytesSync(),
         log.photoName,
-        log.writer
       ],
     );
     await conn.close();

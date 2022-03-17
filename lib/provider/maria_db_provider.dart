@@ -29,7 +29,7 @@ class MariaDBProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  getDTCCodeLogs(String flag) async {
+  getDTCCodeLogs(int flag) async {
     _log = await _mariaDBRepository.getDTCCodeLogs(flag);
     notifyListeners();
   }
