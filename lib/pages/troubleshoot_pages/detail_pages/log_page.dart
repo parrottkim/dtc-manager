@@ -51,6 +51,7 @@ class _LogPageState extends State<LogPage> {
               onTap: () {},
               child: ExpansionTile(
                 leading: Container(
+                  width: 50.0,
                   padding: const EdgeInsets.symmetric(
                       vertical: 2.0, horizontal: 6.0),
                   decoration: BoxDecoration(
@@ -64,6 +65,7 @@ class _LogPageState extends State<LogPage> {
                   ),
                   child: Text(
                     '${_mariaDBProvider.log![index]['model']}',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12.0,
                       fontWeight: FontWeight.w500,

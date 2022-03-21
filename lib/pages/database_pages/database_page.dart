@@ -1,3 +1,4 @@
+import 'package:dtc_manager/pages/database_pages/dtc_code_page.dart';
 import 'package:dtc_manager/pages/database_pages/vehicle_model_page.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -33,18 +34,18 @@ class _DatabasePageState extends State<DatabasePage> {
   Widget _bodyWidget() {
     _settingsItems = [
       {
-        'leading': const Icon(Icons.time_to_leave, color: Colors.black),
-        'title': Text('settings1-1', style: TextStyle(fontSize: 18.0)).tr(),
-        'route': VehicleModelPage(),
-      },
-      {
         'leading': const Icon(Icons.abc, color: Colors.black),
-        'title': Text('settings1-2', style: TextStyle(fontSize: 18.0)).tr(),
-        'route': VehicleModelPage(),
+        'title': Text('settings1-1', style: TextStyle(fontSize: 18.0)).tr(),
+        'route': null,
       },
       {
         'leading':
             const Icon(Icons.content_paste_outlined, color: Colors.black),
+        'title': Text('settings1-2', style: TextStyle(fontSize: 18.0)).tr(),
+        'route': DTCCodePage(),
+      },
+      {
+        'leading': const Icon(Icons.time_to_leave, color: Colors.black),
         'title': Text('settings1-3', style: TextStyle(fontSize: 18.0)).tr(),
         'route': VehicleModelPage(),
       },

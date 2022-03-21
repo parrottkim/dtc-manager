@@ -56,21 +56,21 @@ class _UploadPageState extends State<UploadPage> {
             context: context,
             builder: (_) {
               return AlertDialog(
-                title: Text('uploadPage10'.tr()),
-                content: Text('uploadPage11'.tr()),
+                title: Text('uploadPage10').tr(),
+                content: Text('uploadPage11').tr(),
                 actions: [
                   MaterialButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                       Navigator.of(context).pop();
                     },
-                    child: Text('ok'.tr()),
+                    child: Text('ok').tr(),
                   ),
                   MaterialButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('cancel'.tr()),
+                    child: Text('cancel').tr(),
                   ),
                 ],
               );
@@ -318,26 +318,36 @@ class _UploadPageState extends State<UploadPage> {
                       _validateTextField(_descriptionController.text) == null &&
                       _image != null
                   ? () async {
-                      await _mariaDBProvider.uploadLog(
-                        Log(
-                          date: DateTime.now().toUtc(),
-                          codeId: widget.result['code_id'] as int,
-                          modelId: _selectedModel!['model_id'] as int,
-                          bodyNo: _vehicleNoController.text,
-                          writer: _writerController.text,
-                          description: _descriptionController.text,
-                          photo: _image!,
-                          photoName: _imageName!,
-                        ),
-                      );
+                      await _mariaDBProvider
+                          .uploadLog(
+                            Log(
+                              date: DateTime.now().toUtc(),
+                              codeId: widget.result['code_id'] as int,
+                              modelId: _selectedModel!['model_id'] as int,
+                              bodyNo: _vehicleNoController.text,
+                              writer: _writerController.text,
+                              description: _descriptionController.text,
+                              photo: _image!,
+                              photoName: _imageName!,
+                            ),
+                          )
+                          .then((_) => ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text('settings1-1-12').tr(),
+                              )))
+                          .catchError((e) => ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(
+                                  content: Text('settings1-1-13').tr())));
+                      ;
                       _bottomNavigationProvider.updatePage(2);
                       Navigator.of(context).pop();
                     }
                   : null,
               minWidth: double.infinity,
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.secondary,
               disabledColor: Colors.grey[300],
-              child: Text('uploadPage9'.tr()),
+              child: Text('uploadPage9'.tr(),
+                  style: TextStyle(color: Colors.white)),
             )
           ],
         ),
