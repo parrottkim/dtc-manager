@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dtc_manager/constants.dart';
 import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
-import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
+import 'package:dtc_manager/pages/detail_pages/detail_page.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class DTCListPage extends StatefulWidget {
@@ -22,40 +23,69 @@ class _DTCListPageState extends State<DTCListPage> {
   late MariaDBProvider _mariaDBProvider;
   late SettingsProvider _settingsProvider;
 
+  List<dynamic>? _list = [];
+
   late List<dynamic> _filters;
   String? _selectedFilter;
 
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
 
+  bool _isLoading = false;
   bool _isSearching = false;
+
+  Future<List<dynamic>?> _getData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _mariaDBProvider.getAllDTCCodes(
+        _isSearching, _textEditingController.text);
+
+    if (_mariaDBProvider.code != null) {
+      if (!_isSearching && _selectedFilter != null) {
+        for (var element in _mariaDBProvider.code!) {
+          if (element['sub_system'].toString() == _selectedFilter) {
+            _list!.add(element);
+          }
+        }
+      } else {
+        _list = _mariaDBProvider.code!;
+      }
+    } else {
+      _list = null;
+    }
+    setState(() {
+      _isLoading = false;
+    });
+    return _list;
+  }
 
   @override
   void initState() {
     super.initState();
     _filters = [
       {
-        'title': 'homePage3-1'.tr(),
+        'title': 'homePage4-1'.tr(),
         'flag': 'Powertrain',
         'bool': false,
       },
       {
-        'title': 'homePage3-2'.tr(),
+        'title': 'homePage4-2'.tr(),
         'flag': 'Network',
         'bool': false,
       },
       {
-        'title': 'homePage3-3'.tr(),
+        'title': 'homePage4-3'.tr(),
         'flag': 'Chassis',
         'bool': false,
       },
       {
-        'title': 'homePage3-4'.tr(),
+        'title': 'homePage4-4'.tr(),
         'flag': 'Body',
         'bool': false,
       },
       {
-        'title': 'homePage3-5'.tr(),
+        'title': 'homePage4-5'.tr(),
         'flag': 'Multimedia',
         'bool': false,
       },
@@ -70,6 +100,8 @@ class _DTCListPageState extends State<DTCListPage> {
     super.didChangeDependencies();
     _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: false);
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+
+    _getData();
   }
 
   @override
@@ -85,7 +117,7 @@ class _DTCListPageState extends State<DTCListPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
-      title: MainLogo(subtitle: 'homePage3'.tr()),
+      title: MainLogo(subtitle: 'homePage4'.tr()),
     );
   }
 
@@ -134,7 +166,6 @@ class _DTCListPageState extends State<DTCListPage> {
         Container(
           margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.tune, size: 16.0),
               SizedBox(width: 4.0),
@@ -170,6 +201,9 @@ class _DTCListPageState extends State<DTCListPage> {
                         _filters[i]['bool'] = false;
                       }
                     }
+
+                    _list!.clear();
+                    _getData();
                   });
                 },
                 customBorder: RoundedRectangleBorder(
@@ -216,7 +250,7 @@ class _DTCListPageState extends State<DTCListPage> {
         decoration: InputDecoration(
           isDense: true,
           contentPadding: EdgeInsets.zero,
-          hintText: 'homePage3-6'.tr(),
+          hintText: 'homePage4-6'.tr(),
           suffix: IconButton(
             splashRadius: 24.0,
             icon: Icon(Icons.search),
@@ -228,6 +262,9 @@ class _DTCListPageState extends State<DTCListPage> {
                   for (int i = 0; i < _filters.length; i++) {
                     _filters[i]['bool'] = false;
                   }
+
+                  if (_list != null) _list!.clear();
+                  _getData();
                 });
               }
             },
@@ -242,6 +279,9 @@ class _DTCListPageState extends State<DTCListPage> {
               for (int i = 0; i < _filters.length; i++) {
                 _filters[i]['bool'] = false;
               }
+
+              if (_list != null) _list!.clear();
+              _getData();
             });
           }
         },
@@ -250,47 +290,42 @@ class _DTCListPageState extends State<DTCListPage> {
   }
 
   Widget _dtcCodeList() {
+    if (!_isLoading && _mariaDBProvider.code == null) {
+      return Expanded(child: Center(child: Text('No elements')));
+    }
+    if (_list == null) {
+      return Expanded(child: Center(child: CircularProgressIndicator()));
+    }
     return Expanded(
-      child: FutureBuilder(
-        future: !_isSearching
-            ? _mariaDBProvider.getAllDTCCodes(_selectedFilter)
-            : _mariaDBProvider.searchDTCCodes(_textEditingController.text),
-        builder: (context, snapshot) {
-          if (_mariaDBProvider.code == null) {
-            return Center(child: CircularProgressIndicator());
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: _list!.length,
+        itemBuilder: (context, index) {
+          late String description;
+          if (_settingsProvider.dtcLocale == DTCLocalization.both) {
+            description =
+                '${_list![index]['en_description']}\n${_list![index]['kr_description']}';
+          } else if (_settingsProvider.dtcLocale == DTCLocalization.enUS) {
+            description = '${_list![index]['en_description']}';
+          } else {
+            description = '${_list![index]['kr_description']}';
           }
-          return ListView.builder(
-            shrinkWrap: true,
-            itemCount: _mariaDBProvider.code!.length,
-            itemBuilder: (context, index) {
-              late String description;
-              if (_settingsProvider.dtcLocale == DTCLocalization.both) {
-                description =
-                    '${_mariaDBProvider.code![index]['en_description']}\n${_mariaDBProvider.code![index]['kr_description']}';
-              } else if (_settingsProvider.dtcLocale == DTCLocalization.enUS) {
-                description =
-                    '${_mariaDBProvider.code![index]['en_description']}';
-              } else {
-                description =
-                    '${_mariaDBProvider.code![index]['kr_description']}';
-              }
 
-              return ListTile(
-                onTap: () {
-                  _mariaDBProvider.getAllVehicleModels();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          DetailPage(result: _mariaDBProvider.code![index]),
-                    ),
-                  );
-                },
-                title: Text('${_mariaDBProvider.code![index]['code']}'),
-                subtitle: Text(description,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-                trailing: Icon(Icons.arrow_right),
+          return ListTile(
+            onTap: () {
+              _mariaDBProvider.getAllVehicleModels();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => DetailPage(result: _list![index]),
+                ),
               );
             },
+            title: Text('${_list![index]['code']}'),
+            subtitle: Text(description,
+                maxLines:
+                    _settingsProvider.dtcLocale == DTCLocalization.both ? 2 : 1,
+                overflow: TextOverflow.ellipsis),
+            trailing: Icon(Icons.arrow_right),
           );
         },
       ),

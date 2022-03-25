@@ -1,7 +1,7 @@
-import 'package:dtc_manager/pages/troubleshoot_pages/detail_pages/description_page.dart';
-import 'package:dtc_manager/pages/troubleshoot_pages/detail_pages/inspection_page.dart';
-import 'package:dtc_manager/pages/troubleshoot_pages/detail_pages/log_page.dart';
-import 'package:dtc_manager/pages/troubleshoot_pages/detail_pages/upload_page.dart';
+import 'package:dtc_manager/pages/detail_pages/description_page.dart';
+import 'package:dtc_manager/pages/detail_pages/inspection_page.dart';
+import 'package:dtc_manager/pages/detail_pages/log_page.dart';
+import 'package:dtc_manager/pages/detail_pages/upload_page.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';

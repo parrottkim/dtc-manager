@@ -39,7 +39,8 @@ class _LogPageState extends State<LogPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _mariaDBProvider.getDTCCodeLogs(widget.result['code_id'] as int),
+      future:
+          _mariaDBProvider.getSpecificDTCLogs(widget.result['code_id'] as int),
       builder: (context, snapshot) {
         if (_mariaDBProvider.log == null)
           return Center(child: CircularProgressIndicator());

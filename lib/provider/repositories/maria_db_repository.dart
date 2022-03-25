@@ -2,71 +2,110 @@ import 'package:dtc_manager/model/log.dart';
 import 'package:mysql1/mysql1.dart';
 
 class MariaDBRepository {
-  Future getDTCCode(String value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '192.168.150.113',
-        port: 3306,
-        user: 'root',
-        db: 'dtc_manager',
-        password: 'root',
-      ),
-    );
+  Future getAllAcronyms(bool flag, String? value) async {
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
 
-    var result =
-        await conn.query('select * from codes_temp where code = ?', [value]);
-    await conn.close();
-    return result.toList();
-  }
+      var result;
+      if (!flag) {
+        result = await conn.query('select * from acronyms');
+      } else {
+        result = await conn.query(
+            'select * from acronyms where en_description like ? or kr_description like ? or acronym like ?',
+            ['%$value%', '%$value%', '%$value%']);
+      }
+      await conn.close();
 
-  Future getAllDTCCodes(String? value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '192.168.150.113',
-        port: 3306,
-        user: 'root',
-        db: 'dtc_manager',
-        password: 'root',
-      ),
-    );
-
-    var result;
-    if (value == null) {
-      result = await conn.query('select * from codes_temp');
-    } else {
-      result = await conn
-          .query('select * from codes_temp where sub_system = ?', [value]);
+      if (result.isEmpty)
+        return null;
+      else
+        return result.toList();
+    } catch (e) {
+      print(e);
+      return null;
     }
-    await conn.close();
-    return result.toList();
   }
 
-  Future searchDTCCodes(String value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '192.168.150.113',
-        port: 3306,
-        user: 'root',
-        db: 'dtc_manager',
-        password: 'root',
-      ),
-    );
+  Future getAllDTCCodes(bool flag, String? value) async {
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
 
-    var result = await conn.query(
-        'select * from codes_temp where en_description like ? or kr_description like ? or code like ?',
-        ['%$value%', '%$value%', '%$value%']);
-    await conn.close();
-    return result.toList();
+      var result;
+      if (!flag) {
+        result = await conn.query('select * from codes');
+      } else {
+        result = await conn.query(
+            'select * from codes where en_description like ? or kr_description like ? or code like ?',
+            [
+              '%$value%',
+              '%$value%',
+              '%$value%',
+            ]);
+      }
+      await conn.close();
+
+      if (result.isEmpty)
+        return null;
+      else
+        return result.toList();
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
-  Future getDTCCodeLogs(int value) async {
+  Future getAllLogs(bool flag, String? value) async {
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
+      var result;
+      if (!flag) {
+        result = await conn.query(
+            'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id order by date desc');
+      } else {
+        result = await conn.query(
+            'select * from logs left join models on logs.model_id = models.model_id where code_id = ? order by date desc',
+            [value]);
+      }
+      await conn.close();
+      return result.toList();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future getSpecificDTCLogs(int value) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -80,11 +119,11 @@ class MariaDBRepository {
   Future getVehicleModel(String value) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -97,11 +136,11 @@ class MariaDBRepository {
   Future getVehicleModelCode(String value) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -114,11 +153,11 @@ class MariaDBRepository {
   Future editVehicleModel(ResultRow row, String value) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -131,11 +170,11 @@ class MariaDBRepository {
   Future editVehicleModelCode(ResultRow row, String value) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -148,11 +187,11 @@ class MariaDBRepository {
   Future addVehicleModel(List<String> value) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -165,11 +204,11 @@ class MariaDBRepository {
   Future deleteVehicleModel(ResultRow row) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -181,11 +220,11 @@ class MariaDBRepository {
   Future getAllVehicleModels() async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 
@@ -197,11 +236,11 @@ class MariaDBRepository {
   Future uploadLog(Log value) async {
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '192.168.150.113',
+        host: '34.64.57.212',
         port: 3306,
-        user: 'root',
+        user: 'customer',
         db: 'dtc_manager',
-        password: 'root',
+        password: 'cpdbrrhks1234',
       ),
     );
 

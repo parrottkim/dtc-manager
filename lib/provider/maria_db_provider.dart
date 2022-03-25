@@ -6,6 +6,9 @@ import 'package:mysql1/mysql1.dart';
 class MariaDBProvider extends ChangeNotifier {
   final MariaDBRepository _mariaDBRepository = MariaDBRepository();
 
+  List<ResultRow>? _acronym;
+  List<ResultRow>? get acronym => _acronym;
+
   List<ResultRow>? _code;
   List<ResultRow>? get code => _code;
 
@@ -21,23 +24,23 @@ class MariaDBProvider extends ChangeNotifier {
   List<ResultRow>? _model;
   List<ResultRow>? get model => _model;
 
-  getDTCCode(String flag) async {
-    _code = await _mariaDBRepository.getDTCCode(flag);
+  getAllAcronyms(bool flag, String? value) async {
+    _acronym = await _mariaDBRepository.getAllAcronyms(flag, value);
     notifyListeners();
   }
 
-  getAllDTCCodes(String? subsystem) async {
-    _code = await _mariaDBRepository.getAllDTCCodes(subsystem);
+  getAllDTCCodes(bool flag, String? value) async {
+    _code = await _mariaDBRepository.getAllDTCCodes(flag, value);
     notifyListeners();
   }
 
-  searchDTCCodes(String flag) async {
-    _code = await _mariaDBRepository.searchDTCCodes(flag);
+  getAllLogs(bool flag, String? value) async {
+    _log = await _mariaDBRepository.getAllLogs(flag, value);
     notifyListeners();
   }
 
-  getDTCCodeLogs(int flag) async {
-    _log = await _mariaDBRepository.getDTCCodeLogs(flag);
+  getSpecificDTCLogs(int flag) async {
+    _log = await _mariaDBRepository.getSpecificDTCLogs(flag);
     notifyListeners();
   }
 
@@ -79,9 +82,5 @@ class MariaDBProvider extends ChangeNotifier {
   uploadLog(Log log) async {
     await _mariaDBRepository.uploadLog(log);
     notifyListeners();
-  }
-
-  clearDTCCode() {
-    _code = null;
   }
 }

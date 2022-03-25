@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dtc_manager/model/log.dart';
-import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
+import 'package:dtc_manager/pages/detail_pages/detail_page.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
@@ -333,12 +333,11 @@ class _UploadPageState extends State<UploadPage> {
                           )
                           .then((_) => ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
-                                content: Text('settings1-1-12').tr(),
+                                content: Text('settings1-3-12').tr(),
                               )))
                           .catchError((e) => ScaffoldMessenger.of(context)
                               .showSnackBar(SnackBar(
-                                  content: Text('settings1-1-13').tr())));
-                      ;
+                                  content: Text('settings1-3-13').tr())));
                       _bottomNavigationProvider.updatePage(2);
                       Navigator.of(context).pop();
                     }

@@ -34,7 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _settingsItems = [
       {
         'leading': const Icon(Icons.language, color: Colors.black),
-        'title': Text('settings2-1', style: TextStyle(fontSize: 18.0)).tr(),
+        'title': Text('settings2-1').tr(),
         'route': LanguageSettingsPage(),
       },
     ];

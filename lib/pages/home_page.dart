@@ -1,4 +1,5 @@
 import 'package:dtc_manager/constants.dart';
+import 'package:dtc_manager/pages/acronym_pages/acronym_page.dart';
 import 'package:dtc_manager/pages/database_pages/database_page.dart';
 import 'package:dtc_manager/pages/dtc_list_pages/dtc_list_page.dart';
 import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
@@ -21,7 +22,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late SettingsProvider _settingsProvider;
 
-  late Map<String, Widget?> _pages;
+  late Map<Widget, Widget?> _pages;
   late List<dynamic> _drawerItems;
 
   _checkSettings() async {
@@ -67,10 +68,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _bodyWidget() {
     _pages = {
-      'homePage1'.tr(): null,
-      'homePage2'.tr(): null,
-      'homePage3'.tr(): DTCListPage(),
-      'homePage4'.tr(): TroubleshootPage(),
+      Text('homePage1').tr(): AcronymPage(),
+      Text('homePage2').tr(): null,
+      Text('homePage3').tr(): null,
+      Text('homePage4').tr(): DTCListPage(),
+      Text('homePage5').tr(): TroubleshootPage(),
     };
     _drawerItems = [
       {
@@ -111,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                         builder: (_) => _pages[_pages.keys.elementAt(index)]!));
                   }
                 },
-                title: Text(_pages.keys.elementAt(index)),
+                title: _pages.keys.elementAt(index),
                 trailing: Icon(Icons.arrow_right),
               );
             },

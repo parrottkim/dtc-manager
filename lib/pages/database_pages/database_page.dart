@@ -35,18 +35,18 @@ class _DatabasePageState extends State<DatabasePage> {
     _settingsItems = [
       {
         'leading': const Icon(Icons.abc, color: Colors.black),
-        'title': Text('settings1-1', style: TextStyle(fontSize: 18.0)).tr(),
+        'title': Text('settings1-1').tr(),
         'route': null,
       },
       {
         'leading':
             const Icon(Icons.content_paste_outlined, color: Colors.black),
-        'title': Text('settings1-2', style: TextStyle(fontSize: 18.0)).tr(),
+        'title': Text('settings1-2').tr(),
         'route': DTCCodePage(),
       },
       {
         'leading': const Icon(Icons.time_to_leave, color: Colors.black),
-        'title': Text('settings1-3', style: TextStyle(fontSize: 18.0)).tr(),
+        'title': Text('settings1-3').tr(),
         'route': VehicleModelPage(),
       },
     ];
