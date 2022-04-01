@@ -1,6 +1,7 @@
 import 'package:dtc_manager/model/log.dart';
 import 'package:dtc_manager/provider/repositories/maria_db_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mysql1/mysql1.dart';
 
 class MariaDBProvider extends ChangeNotifier {
@@ -9,11 +10,17 @@ class MariaDBProvider extends ChangeNotifier {
   List<ResultRow>? _acronym;
   List<ResultRow>? get acronym => _acronym;
 
+  List<ResultRow>? _airbag;
+  List<ResultRow>? get airbag => _airbag;
+
   List<ResultRow>? _code;
   List<ResultRow>? get code => _code;
 
   List<ResultRow>? _log;
   List<ResultRow>? get log => _log;
+
+  List<ResultRow>? _image;
+  List<ResultRow>? get image => _image;
 
   List<ResultRow>? _modelCount;
   List<ResultRow>? get modelCount => _modelCount;
@@ -29,18 +36,28 @@ class MariaDBProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  getAllAirbags(bool flag, String? value) async {
+    _airbag = await _mariaDBRepository.getAllAirbags(flag, value);
+    notifyListeners();
+  }
+
   getAllDTCCodes(bool flag, String? value) async {
     _code = await _mariaDBRepository.getAllDTCCodes(flag, value);
     notifyListeners();
   }
 
-  getAllLogs(bool flag, String? value) async {
-    _log = await _mariaDBRepository.getAllLogs(flag, value);
+  getAllLogs(bool flag, String? filter, String? value) async {
+    _log = await _mariaDBRepository.getAllLogs(flag, filter, value);
     notifyListeners();
   }
 
-  getSpecificDTCLogs(int flag) async {
-    _log = await _mariaDBRepository.getSpecificDTCLogs(flag);
+  getSpecificLogs(int flag) async {
+    _log = await _mariaDBRepository.getSpecificLogs(flag);
+    notifyListeners();
+  }
+
+  getLogImages(int flag) async {
+    _image = await _mariaDBRepository.getLogImages(flag);
     notifyListeners();
   }
 
@@ -81,6 +98,11 @@ class MariaDBProvider extends ChangeNotifier {
 
   uploadLog(Log log) async {
     await _mariaDBRepository.uploadLog(log);
+    notifyListeners();
+  }
+
+  uploadImages(Log log, List<XFile> values) async {
+    await _mariaDBRepository.uploadImages(log, values);
     notifyListeners();
   }
 }

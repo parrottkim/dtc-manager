@@ -1,11 +1,12 @@
 import 'package:dtc_manager/constants.dart';
-import 'package:dtc_manager/pages/detail_pages/detail_page.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/log_detail_page.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
+import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class TroubleshootPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class TroubleshootPage extends StatefulWidget {
 class _TroubleshootPageState extends State<TroubleshootPage> {
   late MariaDBProvider _mariaDBProvider;
   late SettingsProvider _settingsProvider;
+  late BottomNavigationProvider _bottomNavigationProvider;
 
   List<dynamic>? _list = [];
 
@@ -32,28 +34,24 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
   bool _isFilterSelected = false;
 
   Future<List<dynamic>?> _getData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     await _mariaDBProvider.getAllLogs(
-        _isSearching, _textEditingController.text);
+        _isSearching, _selectedFilter, _textEditingController.text);
 
     if (_mariaDBProvider.log != null) {
-      if (!_isSearching && _selectedFilter != null) {
-        for (var element in _mariaDBProvider.log!) {
-          if (element['sub_system'].toString() == _selectedFilter) {
-            _list!.add(element);
-          }
-        }
-      } else {
-        _list = _mariaDBProvider.log!;
-      }
+      _list = _mariaDBProvider.log!;
     } else {
       _list = null;
     }
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
     return _list;
   }
 
@@ -63,22 +61,22 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
     _filters = [
       {
         'title': 'homePage5-1'.tr(),
-        'flag': 'Powertrain',
+        'flag': 'model',
         'bool': false,
       },
       {
         'title': 'homePage5-2'.tr(),
-        'flag': 'Network',
+        'flag': 'body_number',
         'bool': false,
       },
       {
         'title': 'homePage5-3'.tr(),
-        'flag': 'Chassis',
+        'flag': 'code',
         'bool': false,
       },
       {
         'title': 'homePage5-4'.tr(),
-        'flag': 'Body',
+        'flag': 'writer',
         'bool': false,
       },
     ];
@@ -90,8 +88,10 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: false);
+    _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: true);
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    _bottomNavigationProvider =
+        Provider.of<BottomNavigationProvider>(context, listen: false);
 
     _getData();
   }
@@ -118,7 +118,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _filterButton(),
-        _isFilterSelected ? _searchWidget() : SizedBox(),
+        _searchWidget(),
         SizedBox(height: 6.0),
         _resultWidget(),
       ],
@@ -160,17 +160,20 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                       if (i == index) {
                         _filters[i]['bool'] = !_filters[i]['bool'];
 
-                        _filters[i]['bool']
-                            ? _selectedFilter = _filters[i]['flag']
-                            : _selectedFilter = null;
-                        _filters[i]['bool']
-                            ? _isFilterSelected = true
-                            : _isFilterSelected = false;
+                        if (_filters[i]['bool']) {
+                          _selectedFilter = _filters[i]['flag'];
+                          _isFilterSelected = true;
+                          _focusNode.unfocus();
+                        } else {
+                          _selectedFilter = null;
+                          _isFilterSelected = false;
+                        }
                       } else {
                         _filters[i]['bool'] = false;
                       }
                     }
-                    FocusScope.of(context).requestFocus(_focusNode);
+                    WidgetsBinding.instance!.addPostFrameCallback(
+                        (_) => FocusScope.of(context).requestFocus(_focusNode));
                   });
                 },
                 customBorder: RoundedRectangleBorder(
@@ -209,35 +212,44 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
   }
 
   Widget _searchWidget() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-      child: Center(
-        child: TextField(
-          controller: _textEditingController,
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            isDense: true,
-            contentPadding: EdgeInsets.zero,
-            suffix: IconButton(
-              splashRadius: 24.0,
-              icon: Icon(Icons.search),
-              onPressed: () {
-                if (_textEditingController.text.isNotEmpty) {
-                  setState(() {
-                    _isSearching = true;
-                  });
-                }
-              },
+    return Visibility(
+      visible: _isFilterSelected,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+        child: Center(
+          child: TextField(
+            controller: _textEditingController,
+            focusNode: _focusNode,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+              suffix: IconButton(
+                splashRadius: 24.0,
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  if (_textEditingController.text.isNotEmpty) {
+                    setState(() {
+                      _isSearching = true;
+
+                      if (_list != null) _list!.clear();
+                      _getData();
+                    });
+                  }
+                },
+              ),
             ),
+            onSubmitted: (value) {
+              _focusNode.unfocus();
+              if (_textEditingController.text.isNotEmpty) {
+                setState(() {
+                  _isSearching = true;
+
+                  if (_list != null) _list!.clear();
+                  _getData();
+                });
+              }
+            },
           ),
-          onSubmitted: (value) {
-            _focusNode.unfocus();
-            if (_textEditingController.text.isNotEmpty) {
-              setState(() {
-                _isSearching = true;
-              });
-            }
-          },
         ),
       ),
     );
@@ -268,11 +280,17 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
 
           return Card(
             child: InkWell(
-              onTap: () {
+              onTap: () async {
                 _mariaDBProvider.getAllVehicleModels();
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => DetailPage(result: _list![index]),
+                    builder: (_) => DetailPage(result: _list![index], index: 2),
+                  ),
+                );
+                _bottomNavigationProvider.updatePage(2);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => LogDetailPage(result: _list![index]),
                   ),
                 );
               },

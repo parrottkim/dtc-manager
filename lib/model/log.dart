@@ -9,16 +9,13 @@ class Log {
   String bodyNo;
   String writer;
   String description;
-  File photo;
-  String photoName;
 
-  Log(
-      {required this.date,
-      required this.codeId,
-      required this.modelId,
-      required this.bodyNo,
-      required this.writer,
-      required this.description,
-      required this.photo,
-      required this.photoName});
+  Log({
+    required this.date,
+    required this.codeId,
+    required this.modelId,
+    required this.bodyNo,
+    required this.writer,
+    required this.description,
+  });
 }

@@ -40,6 +40,8 @@ dependencies:
   shared_preferences: ^2.0.13
   enum_to_string: ^2.0.1
   azlistview: ^2.0.0
+  community_material_icon: ^5.9.55
+  mobile_scanner: ^1.0.0
 
   firebase_core: ^1.12.0
   firebase_auth: ^3.3.7
@@ -52,10 +54,16 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+dependency_overrides:
+  photo_view:
+    git:
+      url: https://github.com/bluefireteam/photo_view
+      ref: master
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+      
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

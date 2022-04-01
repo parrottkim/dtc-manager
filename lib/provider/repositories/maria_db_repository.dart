@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dtc_manager/model/log.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mysql1/mysql1.dart';
 
 class MariaDBRepository {
@@ -20,6 +23,38 @@ class MariaDBRepository {
       } else {
         result = await conn.query(
             'select * from acronyms where en_description like ? or kr_description like ? or acronym like ?',
+            ['%$value%', '%$value%', '%$value%']);
+      }
+      await conn.close();
+
+      if (result.isEmpty)
+        return null;
+      else
+        return result.toList();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future getAllAirbags(bool flag, String? value) async {
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
+
+      var result;
+      if (!flag) {
+        result = await conn.query('select * from airbags');
+      } else {
+        result = await conn.query(
+            'select * from airbags where en_description like ? or kr_description like ? or airbag like ?',
             ['%$value%', '%$value%', '%$value%']);
       }
       await conn.close();
@@ -70,7 +105,7 @@ class MariaDBRepository {
     }
   }
 
-  Future getAllLogs(bool flag, String? value) async {
+  Future getAllLogs(bool flag, String? filter, String? value) async {
     try {
       final conn = await MySqlConnection.connect(
         ConnectionSettings(
@@ -81,14 +116,24 @@ class MariaDBRepository {
           password: 'cpdbrrhks1234',
         ),
       );
+
       var result;
       if (!flag) {
         result = await conn.query(
             'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id order by date desc');
       } else {
-        result = await conn.query(
-            'select * from logs left join models on logs.model_id = models.model_id where code_id = ? order by date desc',
-            [value]);
+        if (filter == 'body_number') {
+          final _whitespaceRE = RegExp(r"\s+");
+          var split = value!.replaceAll(_whitespaceRE, ' ').split(' ');
+          print(split);
+          result = await conn.query(
+              'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id where model_code = ? and body_no = ?',
+              [split[0], split[1]]);
+        } else {
+          result = await conn.query(
+              'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id where ${filter} like ?',
+              ['%${value}%']);
+        }
       }
       await conn.close();
       return result.toList();
@@ -98,22 +143,50 @@ class MariaDBRepository {
     }
   }
 
-  Future getSpecificDTCLogs(int value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
+  Future getSpecificLogs(int value) async {
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
 
-    var result = await conn.query(
-        'select * from logs left join models on logs.model_id = models.model_id where code_id = ? order by date desc',
-        [value]);
-    await conn.close();
-    return result.toList();
+      var result = await conn.query(
+          'select * from logs left join models on logs.model_id = models.model_id where code_id = ? order by date desc',
+          [value]);
+      await conn.close();
+      return result.toList();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future getLogImages(int value) async {
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
+
+      var result = await conn.query(
+          'select * from logs right join log_images on logs.log_id = log_images.log_id where logs.log_id = ?',
+          [value]);
+      await conn.close();
+      return result.toList();
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   Future getVehicleModel(String value) async {
@@ -218,46 +291,97 @@ class MariaDBRepository {
   }
 
   Future getAllVehicleModels() async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
 
-    var result = await conn.query('select * from models');
-    await conn.close();
-    return result.toList();
+      var result = await conn.query('select * from models');
+      await conn.close();
+      return result.toList();
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   Future uploadLog(Log value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
 
-    var result = await conn.query(
-      'insert into logs (date, code_id, model_id, body_no, writer, description, photo, photo_name) values (?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        value.date,
-        value.codeId,
-        value.modelId,
-        value.bodyNo,
-        value.writer,
-        value.description,
-        value.photo.readAsBytesSync(),
-        value.photoName,
-      ],
-    );
-    await conn.close();
-    return result;
+      var result = await conn.query(
+        'insert into logs (date, code_id, model_id, body_no, writer, description) values (?, ?, ?, ?, ?, ?)',
+        [
+          value.date,
+          value.codeId,
+          value.modelId,
+          value.bodyNo,
+          value.writer,
+          value.description,
+        ],
+      );
+      await conn.close();
+      return result;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future uploadImages(Log value, List<XFile> values) async {
+    try {
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: '34.64.57.212',
+          port: 3306,
+          user: 'customer',
+          db: 'dtc_manager',
+          password: 'cpdbrrhks1234',
+        ),
+      );
+
+      var select = await conn.query(
+          'select log_id from logs where date = ? and code_id = ? and model_id = ? and body_no = ? and writer = ? and description = ?',
+          [
+            value.date,
+            value.codeId,
+            value.modelId,
+            value.bodyNo,
+            value.writer,
+            value.description,
+          ]);
+
+      var insert;
+
+      for (var element in values) {
+        insert = await conn.query(
+          'insert into log_images (log_id, photo, photo_name) values (?, ?, ?)',
+          [
+            select.first['log_id'],
+            File(element.path).readAsBytesSync(),
+            File(element.path).path.split('image_picker').last,
+          ],
+        );
+      }
+      await conn.close();
+      return insert;
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 }

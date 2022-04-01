@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dtc_manager/model/log.dart';
-import 'package:dtc_manager/pages/detail_pages/detail_page.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
@@ -42,16 +41,14 @@ class _UploadPageState extends State<UploadPage> {
   late TextEditingController _descriptionController;
   late FocusNode _descriptionFocusNode;
 
-  File? _image;
-  String? _imageName;
-  final _picker = ImagePicker();
+  List<XFile> _images = [];
 
   Future<bool> _onWillPop() async {
     if (_selectedModel != null ||
         _validateBodyNumber(_vehicleNoController.text) == null ||
         _validateTextField(_writerController.text) == null ||
         _validateTextField(_descriptionController.text) == null ||
-        _image != null) {
+        _images != null) {
       return await showDialog(
             context: context,
             builder: (_) {
@@ -105,24 +102,75 @@ class _UploadPageState extends State<UploadPage> {
   }
 
   Future _getImage() async {
-    File image;
-    XFile? picker = await ImagePicker().pickImage(
-        source: ImageSource.gallery, maxHeight: 640.0, maxWidth: 640.0);
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        actions: [
+          MaterialButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
 
-    if (picker != null) {
-      image = File(picker.path);
-      setState(() {
-        _image = image;
-        _imageName = _image!.path.split('image_picker').last;
-      });
-    }
+              XFile? picker = await ImagePicker().pickImage(
+                  source: ImageSource.camera,
+                  maxHeight: 640.0,
+                  maxWidth: 640.0);
+
+              if (picker != null) {
+                setState(() {
+                  _images.add(picker);
+                });
+              }
+            },
+            minWidth: double.infinity,
+            child: Text('uploadPage12').tr(),
+          ),
+          MaterialButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+
+              List<XFile>? picker = await ImagePicker()
+                  .pickMultiImage(maxHeight: 640.0, maxWidth: 640.0);
+
+              if (_images.length + picker!.length > 6) {
+                await _imageDialog();
+                return;
+              }
+
+              if (picker != null) {
+                setState(() {
+                  _images = _images..addAll(picker);
+                });
+              }
+            },
+            minWidth: double.infinity,
+            child: Text('uploadPage13').tr(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _imageDialog() async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('uploadPage14').tr(),
+        content: Text('uploadPage15').tr(),
+        actions: [
+          MaterialButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('ok').tr(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    _image = null;
-
     _vehicleIdController = TextEditingController();
 
     _vehicleNoController = TextEditingController();
@@ -151,6 +199,7 @@ class _UploadPageState extends State<UploadPage> {
         child: Scaffold(
           appBar: _appBar(),
           body: _bodyWidget(),
+          bottomSheet: _bottomButton(),
         ),
       ),
     );
@@ -286,69 +335,148 @@ class _UploadPageState extends State<UploadPage> {
             Text('uploadPage8'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w500)),
             Container(
-              width: double.infinity,
-              height: 300.0,
               margin: EdgeInsets.symmetric(vertical: 10.0),
-              child: _image == null
+              child: _images.isEmpty
                   ? MaterialButton(
                       onPressed: () async {
                         await _getImage();
                       },
-                      color: Colors.grey,
+                      minWidth: double.infinity,
+                      height: 300.0,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Icon(
                         Icons.camera_alt,
                         color: Colors.white,
                         size: 70.0,
                       ),
                     )
-                  : InkWell(
-                      onTap: () async {
-                        await _getImage();
-                      },
-                      child: Image.file(
-                        _image!,
-                        fit: BoxFit.fitWidth,
+                  : GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: _images.length < 6
+                          ? _images.length + 1
+                          : _images.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 3.0,
+                        crossAxisSpacing: 3.0,
+                        childAspectRatio: 1.0,
                       ),
+                      itemBuilder: (context, index) {
+                        if (index == 0 && _images.length < 6) {
+                          return MaterialButton(
+                            onPressed: () async {
+                              await _getImage();
+                            },
+                            minWidth: double.infinity,
+                            height: 300.0,
+                            color: Theme.of(context).colorScheme.secondary,
+                            child: Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 30.0,
+                            ),
+                          );
+                        }
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.file(
+                                File(_images[
+                                        _images.length < 6 ? index - 1 : index]
+                                    .path),
+                                fit: BoxFit.cover),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.all(4.0),
+                                width: 24.0,
+                                height: 24.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      width: 1,
+                                      color: Colors.white.withOpacity(0.7)),
+                                  color: Colors.black.withOpacity(0.3),
+                                ),
+                                child: RawMaterialButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _images.removeAt(index - 1);
+                                    });
+                                  },
+                                  shape: CircleBorder(),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 12.0,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                // ),
+                              ),
+                            )
+                          ],
+                        );
+                      },
                     ),
             ),
-            MaterialButton(
-              onPressed: _validateBodyNumber(_vehicleNoController.text) ==
-                          null &&
-                      _validateTextField(_writerController.text) == null &&
-                      _validateTextField(_descriptionController.text) == null &&
-                      _image != null
-                  ? () async {
-                      await _mariaDBProvider
-                          .uploadLog(
-                            Log(
-                              date: DateTime.now().toUtc(),
-                              codeId: widget.result['code_id'] as int,
-                              modelId: _selectedModel!['model_id'] as int,
-                              bodyNo: _vehicleNoController.text,
-                              writer: _writerController.text,
-                              description: _descriptionController.text,
-                              photo: _image!,
-                              photoName: _imageName!,
-                            ),
-                          )
-                          .then((_) => ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text('settings1-3-12').tr(),
-                              )))
-                          .catchError((e) => ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(
-                                  content: Text('settings1-3-13').tr())));
-                      _bottomNavigationProvider.updatePage(2);
-                      Navigator.of(context).pop();
-                    }
-                  : null,
-              minWidth: double.infinity,
-              color: Theme.of(context).colorScheme.secondary,
-              disabledColor: Colors.grey[300],
-              child: Text('uploadPage9'.tr(),
-                  style: TextStyle(color: Colors.white)),
-            )
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bottomButton() {
+    return Visibility(
+      visible: _validateBodyNumber(_vehicleNoController.text) == null &&
+          _validateTextField(_writerController.text) == null &&
+          _validateTextField(_descriptionController.text) == null &&
+          _images.isNotEmpty,
+      child: Material(
+        color: Theme.of(context).colorScheme.secondary,
+        child: InkWell(
+          onTap: () async {
+            Log log = Log(
+              date: DateTime.now().toUtc(),
+              codeId: widget.result['code_id'] as int,
+              modelId: _selectedModel!['model_id'] as int,
+              bodyNo: _vehicleNoController.text,
+              writer: _writerController.text,
+              description: _descriptionController.text,
+            );
+            await _mariaDBProvider.uploadLog(log).then((_) async {
+              await _mariaDBProvider
+                  .uploadImages(log, _images)
+                  .then((_) =>
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('settings1-3-12').tr(),
+                      )))
+                  .catchError((e) => ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('settings1-3-13').tr())));
+            });
+
+            Navigator.of(context).pop();
+            // Navigator.of(context).pushReplacement(
+            //   MaterialPageRoute(
+            //     builder: (_) => DetailPage(result: widget.result, index: 2),
+            //   ),
+            // );
+            _bottomNavigationProvider.updatePage(2);
+          },
+          child: Container(
+            alignment: Alignment.center,
+            width: double.infinity,
+            height: 50.0,
+            child: Text(
+              'uploadPage9'.tr(),
+              style: TextStyle(
+                fontSize: 18.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ),
       ),
     );

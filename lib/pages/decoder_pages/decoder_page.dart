@@ -1,24 +1,21 @@
-import 'package:dtc_manager/pages/detail_pages/description_page.dart';
-import 'package:dtc_manager/pages/detail_pages/inspection_page.dart';
-import 'package:dtc_manager/pages/detail_pages/log_page.dart';
-import 'package:dtc_manager/pages/detail_pages/upload_page.dart';
+import 'package:dtc_manager/pages/decoder_pages/description_page.dart';
+import 'package:dtc_manager/pages/decoder_pages/scanner_page.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
+import 'package:community_material_icon/community_material_icon.dart';
 
-class DetailPage extends StatefulWidget {
+class DecoderPage extends StatefulWidget {
   final int? index;
-  final ResultRow result;
-  DetailPage({Key? key, this.index, required this.result}) : super(key: key);
+  DecoderPage({Key? key, this.index}) : super(key: key);
 
   @override
-  State<DetailPage> createState() => _DetailPageState();
+  State<DecoderPage> createState() => _DecoderPageState();
 }
 
-class _DetailPageState extends State<DetailPage> {
+class _DecoderPageState extends State<DecoderPage> {
   late BottomNavigationProvider _bottomNavigationProvider;
   late PageController _pageController;
   late int _currentIndex;
@@ -33,7 +30,7 @@ class _DetailPageState extends State<DetailPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _bottomNavigationProvider =
-        Provider.of<BottomNavigationProvider>(context, listen: false);
+        Provider.of<BottomNavigationProvider>(context, listen: true);
     _bottomNavigationProvider.updatePage(_currentIndex);
   }
 
@@ -42,12 +39,6 @@ class _DetailPageState extends State<DetailPage> {
     super.initState();
     _currentIndex = widget.index ?? 0;
     _pageController = PageController(initialPage: _currentIndex);
-  }
-
-  @override
-  void dispose() {
-    _bottomNavigationProvider.updatePage(0);
-    super.dispose();
   }
 
   @override
@@ -61,13 +52,10 @@ class _DetailPageState extends State<DetailPage> {
             setState(() => _bottomNavigationProvider.updatePage(index));
           },
           children: [
-            DescriptionPage(result: widget.result),
-            InspectionPage(result: widget.result),
-            LogPage(result: widget.result),
-            UploadPage(result: widget.result),
+            DescriptionPage(),
+            ScannerPage(),
           ],
         ),
-        floatingActionButton: _floatingActionButton(),
         bottomNavigationBar: _bottomNavigationBar(),
       ),
     );
@@ -76,22 +64,7 @@ class _DetailPageState extends State<DetailPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
-      title:
-          MainLogo(subtitle: '${widget.result['code']} ${'detailPage'.tr()}'),
-    );
-  }
-
-  Widget _floatingActionButton() {
-    return FloatingActionButton(
-      onPressed: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => UploadPage(result: widget.result),
-          ),
-        );
-        setState(() {});
-      },
-      child: Icon(Icons.upload),
+      title: MainLogo(subtitle: 'homePage3'.tr()),
     );
   }
 
@@ -99,11 +72,10 @@ class _DetailPageState extends State<DetailPage> {
     return BottomNavigationBar(
       items: [
         BottomNavigationBarItem(
-            icon: Icon(Icons.description), label: 'detailPage1'.tr()),
+            icon: Icon(Icons.description_sharp), label: 'decoderPage1'.tr()),
         BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart), label: 'detailPage2'.tr()),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.list), label: 'detailPage3'.tr()),
+            icon: Icon(CommunityMaterialIcons.barcode_scan),
+            label: 'decoderPage2'.tr()),
       ],
       currentIndex: _bottomNavigationProvider.currentIndex,
       onTap: (index) => onTabNav(index),

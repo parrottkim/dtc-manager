@@ -1,23 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dtc_manager/constants.dart';
 import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
-import 'package:dtc_manager/pages/detail_pages/detail_page.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
-class DTCListPage extends StatefulWidget {
-  DTCListPage({Key? key}) : super(key: key);
+class CodeListPage extends StatefulWidget {
+  CodeListPage({Key? key}) : super(key: key);
 
   @override
-  State<DTCListPage> createState() => _DTCListPageState();
+  State<CodeListPage> createState() => _CodeListPageState();
 }
 
-class _DTCListPageState extends State<DTCListPage> {
+class _CodeListPageState extends State<CodeListPage> {
   final firestore = FirebaseFirestore.instance;
 
   late MariaDBProvider _mariaDBProvider;
@@ -152,6 +151,7 @@ class _DTCListPageState extends State<DTCListPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _filterButton(),
+        SizedBox(height: 12.0),
         _searchWidget(),
         SizedBox(height: 6.0),
         _dtcCodeList(),
@@ -248,10 +248,9 @@ class _DTCListPageState extends State<DTCListPage> {
         controller: _textEditingController,
         focusNode: _focusNode,
         decoration: InputDecoration(
-          isDense: true,
           contentPadding: EdgeInsets.zero,
-          hintText: 'homePage4-6'.tr(),
-          suffix: IconButton(
+          label: Text('homePage4-6').tr(),
+          suffixIcon: IconButton(
             splashRadius: 24.0,
             icon: Icon(Icons.search),
             onPressed: () {

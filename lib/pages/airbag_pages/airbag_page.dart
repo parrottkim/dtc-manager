@@ -1,31 +1,28 @@
-import 'dart:convert';
-
 import 'package:azlistview/azlistview.dart';
 import 'package:dtc_manager/constants.dart';
-import 'package:dtc_manager/model/acronym.dart';
+import 'package:dtc_manager/model/airbag.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
-class AcronymPage extends StatefulWidget {
-  AcronymPage({Key? key}) : super(key: key);
+class AirbagPage extends StatefulWidget {
+  AirbagPage({Key? key}) : super(key: key);
 
   @override
-  State<AcronymPage> createState() => _AcronymPageState();
+  State<AirbagPage> createState() => _AirbagPageState();
 }
 
-class _AcronymPageState extends State<AcronymPage> {
+class _AirbagPageState extends State<AirbagPage> {
   late MariaDBProvider _mariaDBProvider;
   late SettingsProvider _settingsProvider;
 
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
 
-  List<Acronym> _acronyms = [];
+  List<Airbag> _airbags = [];
 
   bool _isLoading = false;
   bool _isSearching = false;
@@ -34,23 +31,23 @@ class _AcronymPageState extends State<AcronymPage> {
     setState(() {
       _isLoading = true;
     });
-    await _mariaDBProvider.getAllAcronyms(
+    await _mariaDBProvider.getAllAirbags(
         _isSearching, _textEditingController.text);
 
-    _mariaDBProvider.acronym!
+    _mariaDBProvider.airbag!
         .toList()
         .map((e) => e.fields)
         .toList()
         .forEach((element) {
-      _acronyms.add(Acronym.fromJson(element));
+      _airbags.add(Airbag.fromJson(element));
     });
-    _handleList(_acronyms);
+    _handleList(_airbags);
     setState(() {
       _isLoading = false;
     });
   }
 
-  _handleList(List<Acronym> list) {
+  _handleList(List<Airbag> list) {
     if (list.isEmpty) return;
     for (int i = 0, length = list.length; i < length; i++) {
       String tag = list[i].name.substring(0, 1).toUpperCase();
@@ -62,13 +59,13 @@ class _AcronymPageState extends State<AcronymPage> {
       }
     }
     // // A-Z sort.
-    // SuspensionUtil.sortListBySuspensionTag(_acronyms);
+    // SuspensionUtil.sortListBySuspensionTag(_airbags);
 
     // show sus tag.
-    SuspensionUtil.setShowSuspensionStatus(_acronyms);
+    SuspensionUtil.setShowSuspensionStatus(_airbags);
 
     // // add header.
-    // _acronyms.insert(0, Acronym(name: 'header', tagIndex: '↑'));
+    // _airbags.insert(0, airbag(name: 'header', tagIndex: '↑'));
     setState(() {});
   }
 
@@ -77,20 +74,19 @@ class _AcronymPageState extends State<AcronymPage> {
       height: susHeight,
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.only(left: 16.0),
-      color: Color(0xFFF3F4F5),
+      color: Colors.grey[300],
       alignment: Alignment.centerLeft,
       child: Text(
         '$tag',
         softWrap: false,
         style: TextStyle(
           fontSize: 14.0,
-          color: Color(0xFF666666),
         ),
       ),
     );
   }
 
-  Widget _listItem(Acronym model) {
+  Widget _listItem(Airbag model) {
     String susTag = model.getSuspensionTag();
     late String description;
     if (_settingsProvider.dtcLocale == DTCLocalization.both) {
@@ -143,7 +139,7 @@ class _AcronymPageState extends State<AcronymPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
-      title: MainLogo(subtitle: 'homePage1'.tr()),
+      title: MainLogo(subtitle: 'homePage2'.tr()),
     );
   }
 
@@ -153,7 +149,7 @@ class _AcronymPageState extends State<AcronymPage> {
       children: [
         _searchWidget(),
         SizedBox(height: 6.0),
-        _acronymList(),
+        _airbagList(),
       ],
     );
   }
@@ -167,7 +163,7 @@ class _AcronymPageState extends State<AcronymPage> {
         decoration: InputDecoration(
           isDense: true,
           contentPadding: EdgeInsets.zero,
-          label: Text('homePage1-1').tr(),
+          label: Text('homePage2-1').tr(),
           suffixIcon: IconButton(
             splashRadius: 24.0,
             icon: Icon(Icons.search),
@@ -175,7 +171,7 @@ class _AcronymPageState extends State<AcronymPage> {
               if (_textEditingController.text.isNotEmpty) {
                 setState(() {
                   _isSearching = true;
-                  _acronyms.clear();
+                  _airbags.clear();
                   _loadData();
                 });
               }
@@ -187,7 +183,7 @@ class _AcronymPageState extends State<AcronymPage> {
           if (_textEditingController.text.isNotEmpty) {
             setState(() {
               _isSearching = true;
-              _acronyms.clear();
+              _airbags.clear();
               _loadData();
             });
           }
@@ -196,25 +192,25 @@ class _AcronymPageState extends State<AcronymPage> {
     );
   }
 
-  Widget _acronymList() {
-    if (!_isLoading && _mariaDBProvider.acronym == null) {
+  Widget _airbagList() {
+    if (!_isLoading && _mariaDBProvider.airbag == null) {
       return Expanded(child: Center(child: Text('No elements')));
     }
-    if (_acronyms.isEmpty) {
+    if (_airbags.isEmpty) {
       return Expanded(child: Center(child: CircularProgressIndicator()));
     } else {
       return Expanded(
         child: AzListView(
-          data: _acronyms,
-          itemCount: _acronyms.length,
+          data: _airbags,
+          itemCount: _airbags.length,
           itemBuilder: (context, index) {
-            return _listItem(_acronyms[index]);
+            return _listItem(_airbags[index]);
           },
           susItemBuilder: (context, index) {
-            Acronym acronym = _acronyms[index];
-            return getSusItem(context, acronym.getSuspensionTag());
+            Airbag airbag = _airbags[index];
+            return getSusItem(context, airbag.getSuspensionTag());
           },
-          indexBarData: SuspensionUtil.getTagIndexList(_acronyms),
+          indexBarData: SuspensionUtil.getTagIndexList(_airbags),
           indexBarOptions: IndexBarOptions(
             needRebuild: true,
             ignoreDragCancel: true,
@@ -261,6 +257,6 @@ class _AcronymPageState extends State<AcronymPage> {
     return BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20.0),
-        border: Border.all(color: Colors.grey[300]!, width: .5));
+        border: Border.all(color: Colors.grey[500]!, width: .5));
   }
 }

@@ -1,7 +1,9 @@
 import 'package:dtc_manager/constants.dart';
 import 'package:dtc_manager/pages/acronym_pages/acronym_page.dart';
+import 'package:dtc_manager/pages/airbag_pages/airbag_page.dart';
+import 'package:dtc_manager/pages/code_list_pages/code_list_page.dart';
 import 'package:dtc_manager/pages/database_pages/database_page.dart';
-import 'package:dtc_manager/pages/dtc_list_pages/dtc_list_page.dart';
+import 'package:dtc_manager/pages/decoder_pages/decoder_page.dart';
 import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
 import 'package:dtc_manager/pages/troubleshoot_pages/troubleshoot_page.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
@@ -69,9 +71,9 @@ class _HomePageState extends State<HomePage> {
   Widget _bodyWidget() {
     _pages = {
       Text('homePage1').tr(): AcronymPage(),
-      Text('homePage2').tr(): null,
-      Text('homePage3').tr(): null,
-      Text('homePage4').tr(): DTCListPage(),
+      Text('homePage2').tr(): AirbagPage(),
+      Text('homePage3').tr(): DecoderPage(),
+      Text('homePage4').tr(): CodeListPage(),
       Text('homePage5').tr(): TroubleshootPage(),
     };
     _drawerItems = [
@@ -153,7 +155,7 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             onTap: () {},
-            leading: Icon(Icons.logout, color: Colors.black),
+            leading: Icon(Icons.logout_sharp, color: Colors.black),
             title: Text(
               'Sign out',
               style: TextStyle(
