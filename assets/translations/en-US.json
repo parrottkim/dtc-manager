@@ -2,6 +2,8 @@
   "ok": "OK",
   "cancel": "Cancel",
 
+  "exception1": "Server connection error",
+
   "settings1": "Data Management",
     "settings1-1": "Acronyms",
     "settings1-2": "DTC Codes",

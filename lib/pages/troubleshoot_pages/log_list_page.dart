@@ -4,11 +4,10 @@ import 'package:intl/intl.dart';
 
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class LogListPage extends StatefulWidget {
-  final ResultRow result;
+  final Map<String, dynamic> result;
   LogListPage({Key? key, required this.result}) : super(key: key);
 
   @override
@@ -18,7 +17,7 @@ class LogListPage extends StatefulWidget {
 class _LogListPageState extends State<LogListPage> {
   late MariaDBProvider _mariaDBProvider;
 
-  List<dynamic>? _list = [];
+  List<dynamic> _list = [];
 
   bool _isLoading = false;
 
@@ -28,13 +27,13 @@ class _LogListPageState extends State<LogListPage> {
         _isLoading = true;
       });
     }
-    await _mariaDBProvider.getSpecificLogs(widget.result['code_id']);
+    await _mariaDBProvider.getSpecificLogs(widget.result['code_id']).then((_) {
+      if (_mariaDBProvider.log != null) {
+        _list = _mariaDBProvider.log!;
+      }
+    }).catchError((e) => ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(e.message))));
 
-    if (_mariaDBProvider.log != null) {
-      _list = _mariaDBProvider.log!;
-    } else {
-      _list = null;
-    }
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -54,20 +53,20 @@ class _LogListPageState extends State<LogListPage> {
   @override
   Widget build(BuildContext context) {
     if (!_isLoading && _mariaDBProvider.log == null) {
-      return Expanded(child: Center(child: Text('No elements')));
+      return Center(child: Text('No elements'));
     }
-    if (_list == null) {
-      return Expanded(child: Center(child: CircularProgressIndicator()));
+    if (_list.isEmpty) {
+      return Center(child: CircularProgressIndicator());
     }
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: _list!.length,
+      itemCount: _list.length,
       itemBuilder: (context, index) {
         return InkWell(
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => LogDetailPage(result: _list![index]),
+                builder: (_) => LogDetailPage(result: _list[index]),
               ),
             );
           },
@@ -86,7 +85,7 @@ class _LogListPageState extends State<LogListPage> {
                 ),
               ),
               child: Text(
-                '${_list![index]['model']}',
+                '${_list[index]['model']}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12.0,
@@ -98,13 +97,14 @@ class _LogListPageState extends State<LogListPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${_list![index]['model_code']} ${_list![index]['body_no']}',
+                  '${_list[index]['model_code']} ${_list[index]['body_no']}',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  DateFormat('yyyy.MM.dd HH:mm').format(_list![index]['date']),
+                  DateFormat('yyyy.MM.dd HH:mm')
+                      .format(DateTime.parse(_list[index]['date'])),
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.black.withOpacity(0.4),

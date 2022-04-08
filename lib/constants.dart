@@ -1,16 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:intl/intl.dart';
-import 'package:mysql1/mysql1.dart';
 
 enum DTCLocalization { enUS, koKR, both }
-
-var connection = ConnectionSettings(
-  host: '34.64.57.212',
-  port: 3306,
-  user: 'customer',
-  db: 'dtc_manager',
-  password: 'cpdbrrhks1234',
-);
 
 String getDetailDate(DateTime dateTime) {
   DateTime now = DateTime.now();

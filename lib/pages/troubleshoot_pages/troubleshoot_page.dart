@@ -21,7 +21,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
   late SettingsProvider _settingsProvider;
   late BottomNavigationProvider _bottomNavigationProvider;
 
-  List<dynamic>? _list = [];
+  List<dynamic> _list = [];
 
   late List<dynamic> _filters;
   String? _selectedFilter;
@@ -39,14 +39,14 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
         _isLoading = true;
       });
     }
-    await _mariaDBProvider.getAllLogs(
-        _isSearching, _selectedFilter, _textEditingController.text);
-
-    if (_mariaDBProvider.log != null) {
-      _list = _mariaDBProvider.log!;
-    } else {
-      _list = null;
-    }
+    await _mariaDBProvider
+        .getAllLogs(_isSearching, _selectedFilter, _textEditingController.text)
+        .then((_) {
+      if (_mariaDBProvider.log != null) {
+        _list = _mariaDBProvider.log!;
+      }
+    }).catchError((e) => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message))));
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -230,8 +230,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                   if (_textEditingController.text.isNotEmpty) {
                     setState(() {
                       _isSearching = true;
-
-                      if (_list != null) _list!.clear();
+                      _list.clear();
                       _getData();
                     });
                   }
@@ -243,8 +242,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
               if (_textEditingController.text.isNotEmpty) {
                 setState(() {
                   _isSearching = true;
-
-                  if (_list != null) _list!.clear();
+                  _list.clear();
                   _getData();
                 });
               }
@@ -259,23 +257,23 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
     if (!_isLoading && _mariaDBProvider.log == null) {
       return Expanded(child: Center(child: Text('No elements')));
     }
-    if (_list == null) {
+    if (_list.isEmpty) {
       return Expanded(child: Center(child: CircularProgressIndicator()));
     }
     return Expanded(
       child: ListView.builder(
         padding: EdgeInsets.symmetric(horizontal: 10.0),
         shrinkWrap: true,
-        itemCount: _list!.length,
+        itemCount: _list.length,
         itemBuilder: (context, index) {
           late String description;
           if (_settingsProvider.dtcLocale == DTCLocalization.both) {
             description =
-                '${_list![index]['en_description']}\n${_list![index]['kr_description']}';
+                '${_list[index]['en_description']}\n${_list[index]['kr_description']}';
           } else if (_settingsProvider.dtcLocale == DTCLocalization.enUS) {
-            description = '${_list![index]['en_description']}';
+            description = '${_list[index]['en_description']}';
           } else {
-            description = '${_list![index]['kr_description']}';
+            description = '${_list[index]['kr_description']}';
           }
 
           return Card(
@@ -284,13 +282,13 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                 _mariaDBProvider.getAllVehicleModels();
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => DetailPage(result: _list![index], index: 2),
+                    builder: (_) => DetailPage(result: _list[index], index: 2),
                   ),
                 );
                 _bottomNavigationProvider.updatePage(2);
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => LogDetailPage(result: _list![index]),
+                    builder: (_) => LogDetailPage(result: _list[index]),
                   ),
                 );
               },
@@ -315,7 +313,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                             ),
                           ),
                           child: Text(
-                            '${_list![index]['model']}',
+                            '${_list[index]['model']}',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 12.0,
@@ -338,7 +336,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                             ),
                           ),
                           child: Text(
-                            '${_list![index]['model_code']} ${_list![index]['body_no']}',
+                            '${_list[index]['model_code']} ${_list[index]['body_no']}',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 12.0,
@@ -348,7 +346,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                         ),
                         Expanded(
                           child: Text(
-                            getDetailDate(_list![index]['date']),
+                            getDetailDate(DateTime.parse(_list[index]['date'])),
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               fontSize: 14.0,
@@ -360,7 +358,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                     ),
                     Divider(),
                     Text(
-                      '${_list![index]['code']}',
+                      '${_list[index]['code']}',
                       style: TextStyle(
                           fontSize: 18.0, fontWeight: FontWeight.bold),
                     ),
@@ -378,7 +376,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                     ),
                     SizedBox(height: 4.0),
                     Text(
-                      '•  ${_list![index]['writer']}',
+                      '•  ${_list[index]['writer']}',
                       style: TextStyle(
                         fontSize: 16.0,
                         color: Colors.black.withOpacity(0.5),

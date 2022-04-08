@@ -31,7 +31,6 @@ dependencies:
     sdk: flutter
   
   intl: ^0.17.0
-  mysql1: ^0.19.2
   provider: ^6.0.2
   image_picker: ^0.8.4+10
   share_plus: ^3.1.0

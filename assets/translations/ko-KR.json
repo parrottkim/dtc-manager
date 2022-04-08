@@ -2,6 +2,8 @@
   "ok": "확인",
   "cancel": "취소",
 
+  "exception1": "서버 연결 실패",
+
   "settings1": "데이터 관리",
     "settings1-1": "약어",
     "settings1-2": "고장 코드(DTC)",

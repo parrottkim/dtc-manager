@@ -5,7 +5,6 @@ import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_view/photo_view.dart';
@@ -13,7 +12,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 
 class LogDetailPage extends StatefulWidget {
-  final ResultRow result;
+  final dynamic result;
   LogDetailPage({Key? key, required this.result}) : super(key: key);
 
   @override
@@ -29,7 +28,7 @@ class _LogDetailPageState extends State<LogDetailPage> {
   late MariaDBProvider _mariaDBProvider;
   late BottomNavigationProvider _bottomNavigationProvider;
 
-  List<Map<String, Uint8List>>? _list = [];
+  List<Map<String, Uint8List>> _list = [];
 
   bool _isLoading = false;
 
@@ -37,21 +36,19 @@ class _LogDetailPageState extends State<LogDetailPage> {
     setState(() {
       _isLoading = true;
     });
-
-    await _mariaDBProvider.getLogImages(widget.result['log_id'] as int);
-
-    if (_mariaDBProvider.image != null) {
-      for (var element in _mariaDBProvider.image!) {
-        _list!.add(
-          {
+    await _mariaDBProvider
+        .getLogImages(widget.result['log_id'] as int)
+        .then((_) {
+      if (_mariaDBProvider.image != null) {
+        for (var element in _mariaDBProvider.image!) {
+          _list.add({
             '${element['photo_name']}':
-                Uint8List.fromList(element['photo'].toBytes()),
-          },
-        );
+                Uint8List.fromList(element['photo']['data'].cast<int>()),
+          });
+        }
       }
-    } else {
-      _list = null;
-    }
+    }).catchError((e) => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message))));
     setState(() {
       _isLoading = false;
     });
@@ -62,7 +59,7 @@ class _LogDetailPageState extends State<LogDetailPage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => GalleryPhotoViewWrapper(
-          items: _list!,
+          items: _list,
           backgroundDecoration: const BoxDecoration(
             color: Colors.black,
           ),
@@ -150,7 +147,7 @@ class _LogDetailPageState extends State<LogDetailPage> {
                   ),
                   Text(
                     DateFormat('yyyy.MM.dd HH:mm')
-                        .format(widget.result['date']),
+                        .format(DateTime.parse(widget.result['date'])),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.black.withOpacity(0.4),
@@ -180,52 +177,60 @@ class _LogDetailPageState extends State<LogDetailPage> {
           SizedBox(height: 4.0),
           SizedBox(
             height: 300.0,
-            child: Stack(
-              children: [
-                PageView.builder(
-                  controller: _pageController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _list!.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                        onTap: () {
-                          _openPhoto(context, index);
-                        },
-                        child: Image.memory(_list![index].values.elementAt(0),
-                            fit: BoxFit.cover));
-                  },
-                ),
-                Visibility(
-                  visible: _pageOffset >= 1 && _list!.length > 1,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0),
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon:
-                          Icon(Icons.keyboard_arrow_left, color: Colors.white),
-                      onPressed: () => _pageController.previousPage(
-                          duration: _animationDuration, curve: _curve),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: _pageOffset <= 1 && _list!.length > 1,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0),
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      icon:
-                          Icon(Icons.keyboard_arrow_right, color: Colors.white),
-                      onPressed: () => _pageController.nextPage(
-                          duration: _animationDuration, curve: _curve),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            child: _imageWidget(),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _imageWidget() {
+    if (!_isLoading && _mariaDBProvider.image == null) {
+      return Center(child: Text('No elements'));
+    }
+    if (_list.isEmpty) {
+      return Center(child: CircularProgressIndicator());
+    }
+    return Stack(
+      children: [
+        PageView.builder(
+          controller: _pageController,
+          scrollDirection: Axis.horizontal,
+          itemCount: _list.length,
+          itemBuilder: (context, index) {
+            return InkWell(
+                onTap: () {
+                  _openPhoto(context, index);
+                },
+                child: Image.memory(_list[index].values.elementAt(0),
+                    fit: BoxFit.cover));
+          },
+        ),
+        Visibility(
+          visible: _pageOffset >= 0.9,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: Icon(Icons.keyboard_arrow_left, color: Colors.white),
+              onPressed: () => _pageController.previousPage(
+                  duration: _animationDuration, curve: _curve),
+            ),
+          ),
+        ),
+        Visibility(
+          visible: _pageOffset <= _list.length - 1.1,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              icon: Icon(Icons.keyboard_arrow_right, color: Colors.white),
+              onPressed: () => _pageController.nextPage(
+                  duration: _animationDuration, curve: _curve),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -277,6 +282,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.black.withOpacity(0.4),
         foregroundColor: Colors.white,
         actions: [
           IconButton(

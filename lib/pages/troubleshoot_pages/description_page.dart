@@ -1,11 +1,10 @@
 import 'package:dtc_manager/constants.dart';
 import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class DescriptionPage extends StatefulWidget {
-  final ResultRow result;
+  final Map<String, dynamic> result;
   DescriptionPage({Key? key, required this.result}) : super(key: key);
 
   @override

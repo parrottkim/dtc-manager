@@ -6,12 +6,11 @@ import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class DetailPage extends StatefulWidget {
   final int? index;
-  final ResultRow result;
+  final Map<String, dynamic> result;
   DetailPage({Key? key, this.index, required this.result}) : super(key: key);
 
   @override

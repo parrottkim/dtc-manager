@@ -1,17 +1,17 @@
 import 'dart:io';
 
 import 'package:dtc_manager/model/log.dart';
+import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class UploadPage extends StatefulWidget {
-  final ResultRow result;
+  final Map<String, dynamic> result;
   UploadPage({Key? key, required this.result}) : super(key: key);
 
   @override
@@ -22,7 +22,7 @@ class _UploadPageState extends State<UploadPage> {
   late BottomNavigationProvider _bottomNavigationProvider;
   late MariaDBProvider _mariaDBProvider;
 
-  ResultRow? _selectedModel;
+  dynamic? _selectedModel;
 
   bool _isVehicleSelected = false;
 
@@ -48,7 +48,7 @@ class _UploadPageState extends State<UploadPage> {
         _validateBodyNumber(_vehicleNoController.text) == null ||
         _validateTextField(_writerController.text) == null ||
         _validateTextField(_descriptionController.text) == null ||
-        _images != null) {
+        _images.isNotEmpty) {
       return await showDialog(
             context: context,
             builder: (_) {
@@ -222,30 +222,41 @@ class _UploadPageState extends State<UploadPage> {
           children: [
             Text('uploadPage1'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w500)),
-            DropdownButton<ResultRow>(
-              hint: Text('uploadPage1'.tr()),
-              value: _selectedModel,
-              onChanged: (ResultRow? value) {
-                setState(() {
-                  if (value != null) {
-                    _selectedModel = value;
-                    _isVehicleSelected = true;
-                    _vehicleIdController.clear();
-                    _vehicleNoController.clear();
-                    _isBodyNumberEditing = false;
-                    _vehicleIdController.text += value['model_code'].toString();
-                  }
-                });
-                WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                    FocusScope.of(context).requestFocus(_vehicleNoFocusNode));
-              },
-              items: _mariaDBProvider.model!
-                  .map((value) => DropdownMenuItem<ResultRow>(
-                        value: value,
-                        child: Text(value['model'].toString()),
-                      ))
-                  .toList(),
-            ),
+            _mariaDBProvider.model != null
+                ? DropdownButton(
+                    hint: Text('uploadPage1'.tr()),
+                    value: _selectedModel,
+                    onChanged: (dynamic value) {
+                      setState(() {
+                        if (value != null) {
+                          _selectedModel = value;
+                          _isVehicleSelected = true;
+                          _vehicleIdController.clear();
+                          _vehicleNoController.clear();
+                          _isBodyNumberEditing = false;
+                          _vehicleIdController.text +=
+                              value['model_code'].toString();
+                        }
+                      });
+                      WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                          FocusScope.of(context)
+                              .requestFocus(_vehicleNoFocusNode));
+                    },
+                    items: _mariaDBProvider.model!
+                        .map((value) => DropdownMenuItem(
+                              value: value,
+                              child: Text(value['model'].toString()),
+                            ))
+                        .toList(),
+                  )
+                : Container(
+                    margin: EdgeInsets.all(4.0),
+                    width: 30.0,
+                    height: 30.0,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
             SizedBox(height: 10.0),
             Text('uploadPage2'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w500)),
@@ -413,7 +424,6 @@ class _UploadPageState extends State<UploadPage> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                // ),
                               ),
                             )
                           ],
@@ -438,31 +448,29 @@ class _UploadPageState extends State<UploadPage> {
         child: InkWell(
           onTap: () async {
             Log log = Log(
-              date: DateTime.now().toUtc(),
-              codeId: widget.result['code_id'] as int,
-              modelId: _selectedModel!['model_id'] as int,
-              bodyNo: _vehicleNoController.text,
+              date: DateFormat("yyyy-MM-dd HH:mm:ss.ms")
+                  .format(DateTime.now().toUtc()),
+              codeId: widget.result['code_id'],
+              modelId: _selectedModel!['model_id'],
+              bodyNumber: _vehicleNoController.text,
               writer: _writerController.text,
               description: _descriptionController.text,
             );
-            await _mariaDBProvider.uploadLog(log).then((_) async {
-              await _mariaDBProvider
-                  .uploadImages(log, _images)
-                  .then((_) =>
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('settings1-3-12').tr(),
-                      )))
-                  .catchError((e) => ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('settings1-3-13').tr())));
-            });
+            await _mariaDBProvider
+                .uploadLog(log, _images)
+                .then(
+                    (_) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('settings1-3-12').tr(),
+                        )))
+                .catchError((e) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('settings1-3-13').tr())));
 
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop();
             // Navigator.of(context).pushReplacement(
             //   MaterialPageRoute(
             //     builder: (_) => DetailPage(result: widget.result, index: 2),
             //   ),
             // );
-            _bottomNavigationProvider.updatePage(2);
           },
           child: Container(
             alignment: Alignment.center,

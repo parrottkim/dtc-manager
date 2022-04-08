@@ -1,387 +1,373 @@
 import 'dart:io';
 
 import 'package:dtc_manager/model/log.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mysql1/mysql1.dart';
+
+import "package:http/http.dart" as http;
+import 'dart:convert';
 
 class MariaDBRepository {
-  Future getAllAcronyms(bool flag, String? value) async {
+  final headers = {
+    'Content-Type': 'application/x-www-form-urlencoding;',
+    'Accept': 'application/json; charset=utf-8',
+  };
+
+  Future<dynamic> getAllAcronyms(bool flag, String? value) async {
+    final String url;
+    url = !flag
+        ? 'http://125.141.35.157:13306/acronyms/'
+        : 'http://125.141.35.157:13306/acronyms?value=${value!}';
+
     try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
       );
-
-      var result;
-      if (!flag) {
-        result = await conn.query('select * from acronyms');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
       } else {
-        result = await conn.query(
-            'select * from acronyms where en_description like ? or kr_description like ? or acronym like ?',
-            ['%$value%', '%$value%', '%$value%']);
+        throw Exception('${response.statusCode}');
       }
-      await conn.close();
-
-      if (result.isEmpty)
-        return null;
-      else
-        return result.toList();
-    } catch (e) {
-      print(e);
-      return null;
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
   }
 
   Future getAllAirbags(bool flag, String? value) async {
+    final String url;
+    url = !flag
+        ? 'http://125.141.35.157:13306/airbags/'
+        : 'http://125.141.35.157:13306/airbags?value=${value!}';
+
     try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
       );
-
-      var result;
-      if (!flag) {
-        result = await conn.query('select * from airbags');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
       } else {
-        result = await conn.query(
-            'select * from airbags where en_description like ? or kr_description like ? or airbag like ?',
-            ['%$value%', '%$value%', '%$value%']);
+        throw Exception('${response.statusCode}');
       }
-      await conn.close();
-
-      if (result.isEmpty)
-        return null;
-      else
-        return result.toList();
-    } catch (e) {
-      print(e);
-      return null;
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
   }
 
-  Future getAllDTCCodes(bool flag, String? value) async {
+  Future<dynamic> getAllDTCCodes(bool flag, String? value) async {
+    final String url;
+    url = !flag
+        ? 'http://125.141.35.157:13306/codes/'
+        : 'http://125.141.35.157:13306/codes?value=${value!}';
+
     try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
       );
-
-      var result;
-      if (!flag) {
-        result = await conn.query('select * from codes');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
       } else {
-        result = await conn.query(
-            'select * from codes where en_description like ? or kr_description like ? or code like ?',
-            [
-              '%$value%',
-              '%$value%',
-              '%$value%',
-            ]);
+        throw Exception('${response.statusCode}');
       }
-      await conn.close();
-
-      if (result.isEmpty)
-        return null;
-      else
-        return result.toList();
-    } catch (e) {
-      print(e);
-      return null;
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
   }
 
   Future getAllLogs(bool flag, String? filter, String? value) async {
-    try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
-      );
-
-      var result;
-      if (!flag) {
-        result = await conn.query(
-            'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id order by date desc');
+    final String url;
+    if (!flag) {
+      url = 'http://125.141.35.157:13306/logs/';
+    } else {
+      if (filter == 'body_number') {
+        final _whitespaceRE = RegExp(r"\s+");
+        var split = value!.replaceAll(_whitespaceRE, ' ').split(' ');
+        url =
+            'http://125.141.35.157:13306/logs/number?code=${split[0]}&number=${split[1]}';
       } else {
-        if (filter == 'body_number') {
-          final _whitespaceRE = RegExp(r"\s+");
-          var split = value!.replaceAll(_whitespaceRE, ' ').split(' ');
-          print(split);
-          result = await conn.query(
-              'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id where model_code = ? and body_no = ?',
-              [split[0], split[1]]);
-        } else {
-          result = await conn.query(
-              'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id where ${filter} like ?',
-              ['%${value}%']);
-        }
+        url =
+            'http://125.141.35.157:13306/logs/filter?filter=${filter}&value=${value}';
       }
-      await conn.close();
-      return result.toList();
-    } catch (e) {
-      print(e);
-      return null;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
   }
 
   Future getSpecificLogs(int value) async {
-    try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
-      );
+    final url = 'http://125.141.35.157:13306/logs?id=${value}';
 
-      var result = await conn.query(
-          'select * from logs left join models on logs.model_id = models.model_id where code_id = ? order by date desc',
-          [value]);
-      await conn.close();
-      return result.toList();
-    } catch (e) {
-      print(e);
-      return null;
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
   }
 
   Future getLogImages(int value) async {
+    final url = 'http://125.141.35.157:13306/logs/images?id=${value}';
+
     try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
       );
-
-      var result = await conn.query(
-          'select * from logs right join log_images on logs.log_id = log_images.log_id where logs.log_id = ?',
-          [value]);
-      await conn.close();
-      return result.toList();
-    } catch (e) {
-      print(e);
-      return null;
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
-  }
-
-  Future getVehicleModel(String value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
-
-    var result = await conn
-        .query('select count(*) from models where model = ?', [value]);
-    await conn.close();
-    return result.toList();
-  }
-
-  Future getVehicleModelCode(String value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
-
-    var result = await conn
-        .query('select count(*) from models where model_code = ?', [value]);
-    await conn.close();
-    return result.toList();
-  }
-
-  Future editVehicleModel(ResultRow row, String value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
-
-    var result = await conn.query(
-        'update models set model = ? where model_id = ?',
-        [value, row['model_id']]);
-    await conn.close();
-  }
-
-  Future editVehicleModelCode(ResultRow row, String value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
-
-    var result = await conn.query(
-        'update models set model_code = ? where model_id = ?',
-        [value, row['model_id']]);
-    await conn.close();
-  }
-
-  Future addVehicleModel(List<String> value) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
-
-    var result = await conn.query(
-        'insert into models (model, model_code) value (?, ?)',
-        [value[0], value[1]]);
-    await conn.close();
-  }
-
-  Future deleteVehicleModel(ResultRow row) async {
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: '34.64.57.212',
-        port: 3306,
-        user: 'customer',
-        db: 'dtc_manager',
-        password: 'cpdbrrhks1234',
-      ),
-    );
-
-    var result = await conn
-        .query('delete from models where model_id = ?', [row['model_id']]);
-    await conn.close();
   }
 
   Future getAllVehicleModels() async {
+    final url = 'http://125.141.35.157:13306/models/';
+
     try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
       );
-
-      var result = await conn.query('select * from models');
-      await conn.close();
-      return result.toList();
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  Future uploadLog(Log value) async {
-    try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
-      );
-
-      var result = await conn.query(
-        'insert into logs (date, code_id, model_id, body_no, writer, description) values (?, ?, ?, ?, ?, ?)',
-        [
-          value.date,
-          value.codeId,
-          value.modelId,
-          value.bodyNo,
-          value.writer,
-          value.description,
-        ],
-      );
-      await conn.close();
-      return result;
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  Future uploadImages(Log value, List<XFile> values) async {
-    try {
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: '34.64.57.212',
-          port: 3306,
-          user: 'customer',
-          db: 'dtc_manager',
-          password: 'cpdbrrhks1234',
-        ),
-      );
-
-      var select = await conn.query(
-          'select log_id from logs where date = ? and code_id = ? and model_id = ? and body_no = ? and writer = ? and description = ?',
-          [
-            value.date,
-            value.codeId,
-            value.modelId,
-            value.bodyNo,
-            value.writer,
-            value.description,
-          ]);
-
-      var insert;
-
-      for (var element in values) {
-        insert = await conn.query(
-          'insert into log_images (log_id, photo, photo_name) values (?, ?, ?)',
-          [
-            select.first['log_id'],
-            File(element.path).readAsBytesSync(),
-            File(element.path).path.split('image_picker').last,
-          ],
-        );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
       }
-      await conn.close();
-      return insert;
-    } catch (e) {
-      print(e);
-      return null;
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
   }
+
+  Future uploadLog(Log value, List<XFile> values) async {
+    final url = 'http://125.141.35.157:13306/logs/upload-log/';
+    final body = {
+      'date': value.date,
+      'codeId': value.codeId,
+      'modelId': value.modelId,
+      'bodyNumber': value.bodyNumber,
+      'writer': value.writer,
+      'description': value.description,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 200) {
+        print(jsonDecode(response.body)['result']);
+        await uploadImages(jsonDecode(response.body)['result'], values);
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
+    }
+  }
+
+  Future uploadImages(int id, List<XFile> values) async {
+    for (var element in values) {
+      print(File(element.path));
+      final url = 'http://125.141.35.157:13306/logs/upload-image/';
+      final body = {
+        'id': id,
+        'photo': File(element.path).readAsBytesSync(),
+        'photoName': File(element.path).path.split('image_picker').last,
+      };
+
+      try {
+        final response = await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        if (response.statusCode == 200) {
+          return;
+        } else if (response.statusCode == 400) {
+          throw Exception('400 Bad Request');
+        } else if (response.statusCode == 401) {
+          throw Exception('401 Unauthorized Request');
+        } else if (response.statusCode == 403) {
+          throw Exception('403 Forbidden Request');
+        } else {
+          throw Exception('${response.statusCode}');
+        }
+      } on SocketException {
+        throw Exception('exception1'.tr());
+      }
+    }
+  }
+
+  // Future getVehicleModel(String value) async {
+  //   final conn = await MySqlConnection.connect(
+  //     ConnectionSettings(
+  //       host: '34.64.57.212',
+  //       port: 3306,
+  //       user: 'customer',
+  //       db: 'dtc_manager',
+  //       password: 'cpdbrrhks1234',
+  //     ),
+  //   );
+
+  //   var result = await conn
+  //       .query('select count(*) from models where model = ?', [value]);
+  //   await conn.close();
+  //   return result.toList();
+  // }
+
+  // Future getVehicleModelCode(String value) async {
+  //   final conn = await MySqlConnection.connect(
+  //     ConnectionSettings(
+  //       host: '34.64.57.212',
+  //       port: 3306,
+  //       user: 'customer',
+  //       db: 'dtc_manager',
+  //       password: 'cpdbrrhks1234',
+  //     ),
+  //   );
+
+  //   var result = await conn
+  //       .query('select count(*) from models where model_code = ?', [value]);
+  //   await conn.close();
+  //   return result.toList();
+  // }
+
+  // Future editVehicleModel(ResultRow row, String value) async {
+  //   final conn = await MySqlConnection.connect(
+  //     ConnectionSettings(
+  //       host: '34.64.57.212',
+  //       port: 3306,
+  //       user: 'customer',
+  //       db: 'dtc_manager',
+  //       password: 'cpdbrrhks1234',
+  //     ),
+  //   );
+
+  //   var result = await conn.query(
+  //       'update models set model = ? where model_id = ?',
+  //       [value, row['model_id']]);
+  //   await conn.close();
+  // }
+
+  // Future editVehicleModelCode(ResultRow row, String value) async {
+  //   final conn = await MySqlConnection.connect(
+  //     ConnectionSettings(
+  //       host: '34.64.57.212',
+  //       port: 3306,
+  //       user: 'customer',
+  //       db: 'dtc_manager',
+  //       password: 'cpdbrrhks1234',
+  //     ),
+  //   );
+
+  //   var result = await conn.query(
+  //       'update models set model_code = ? where model_id = ?',
+  //       [value, row['model_id']]);
+  //   await conn.close();
+  // }
+
+  // Future addVehicleModel(List<String> value) async {
+  //   final conn = await MySqlConnection.connect(
+  //     ConnectionSettings(
+  //       host: '34.64.57.212',
+  //       port: 3306,
+  //       user: 'customer',
+  //       db: 'dtc_manager',
+  //       password: 'cpdbrrhks1234',
+  //     ),
+  //   );
+
+  //   var result = await conn.query(
+  //       'insert into models (model, model_code) value (?, ?)',
+  //       [value[0], value[1]]);
+  //   await conn.close();
+  // }
+
+  // Future deleteVehicleModel(ResultRow row) async {
+  //   final conn = await MySqlConnection.connect(
+  //     ConnectionSettings(
+  //       host: '34.64.57.212',
+  //       port: 3306,
+  //       user: 'customer',
+  //       db: 'dtc_manager',
+  //       password: 'cpdbrrhks1234',
+  //     ),
+  //   );
+
+  //   var result = await conn
+  //       .query('delete from models where model_id = ?', [row['model_id']]);
+  //   await conn.close();
+  // }
 }

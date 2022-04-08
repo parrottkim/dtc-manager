@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:azlistview/azlistview.dart';
 import 'package:dtc_manager/constants.dart';
 import 'package:dtc_manager/model/acronym.dart';
@@ -8,7 +6,6 @@ import 'package:dtc_manager/provider/settings_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class AcronymPage extends StatefulWidget {
@@ -34,17 +31,19 @@ class _AcronymPageState extends State<AcronymPage> {
     setState(() {
       _isLoading = true;
     });
-    await _mariaDBProvider.getAllAcronyms(
-        _isSearching, _textEditingController.text);
-
-    _mariaDBProvider.acronym!
-        .toList()
-        .map((e) => e.fields)
-        .toList()
-        .forEach((element) {
-      _acronyms.add(Acronym.fromJson(element));
-    });
-    _handleList(_acronyms);
+    await _mariaDBProvider
+        .getAllAcronyms(_isSearching, _textEditingController.text)
+        .then((_) {
+      _mariaDBProvider.acronym!
+          .toList()
+          .map((e) => e)
+          .toList()
+          .forEach((element) {
+        _acronyms.add(Acronym.fromJson(element));
+      });
+      _handleList(_acronyms);
+    }).catchError((e) => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message))));
     setState(() {
       _isLoading = false;
     });

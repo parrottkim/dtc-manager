@@ -2,7 +2,6 @@ import 'package:dtc_manager/constants.dart';
 import 'package:dtc_manager/pages/acronym_pages/acronym_page.dart';
 import 'package:dtc_manager/pages/airbag_pages/airbag_page.dart';
 import 'package:dtc_manager/pages/code_list_pages/code_list_page.dart';
-import 'package:dtc_manager/pages/database_pages/database_page.dart';
 import 'package:dtc_manager/pages/decoder_pages/decoder_page.dart';
 import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
 import 'package:dtc_manager/pages/troubleshoot_pages/troubleshoot_page.dart';
@@ -77,17 +76,17 @@ class _HomePageState extends State<HomePage> {
       Text('homePage5').tr(): TroubleshootPage(),
     };
     _drawerItems = [
-      {
-        'leading': const Icon(Icons.table_rows, color: Colors.black),
-        'title': Text(
-          'settings1'.tr(),
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        'route': DatabasePage(),
-      },
+      // {
+      //   'leading': const Icon(Icons.table_rows, color: Colors.black),
+      //   'title': Text(
+      //     'settings1'.tr(),
+      //     style: TextStyle(
+      //       fontSize: 16.0,
+      //       fontWeight: FontWeight.w400,
+      //     ),
+      //   ),
+      //   'route': DatabasePage(),
+      // },
       {
         'leading': const Icon(Icons.settings, color: Colors.black),
         'title': Text(

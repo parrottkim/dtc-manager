@@ -22,7 +22,7 @@ class _CodeListPageState extends State<CodeListPage> {
   late MariaDBProvider _mariaDBProvider;
   late SettingsProvider _settingsProvider;
 
-  List<dynamic>? _list = [];
+  List<dynamic> _list = [];
 
   late List<dynamic> _filters;
   String? _selectedFilter;
@@ -37,22 +37,22 @@ class _CodeListPageState extends State<CodeListPage> {
     setState(() {
       _isLoading = true;
     });
-    await _mariaDBProvider.getAllDTCCodes(
-        _isSearching, _textEditingController.text);
-
-    if (_mariaDBProvider.code != null) {
-      if (!_isSearching && _selectedFilter != null) {
-        for (var element in _mariaDBProvider.code!) {
-          if (element['sub_system'].toString() == _selectedFilter) {
-            _list!.add(element);
+    await _mariaDBProvider
+        .getAllDTCCodes(_isSearching, _textEditingController.text)
+        .then((_) {
+      if (_mariaDBProvider.code != null) {
+        if (!_isSearching && _selectedFilter != null) {
+          for (var element in _mariaDBProvider.code!) {
+            if (element['sub_system'].toString() == _selectedFilter) {
+              _list.add(element);
+            }
           }
+        } else {
+          _list = _mariaDBProvider.code!;
         }
-      } else {
-        _list = _mariaDBProvider.code!;
       }
-    } else {
-      _list = null;
-    }
+    }).catchError((e) => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message))));
     setState(() {
       _isLoading = false;
     });
@@ -100,6 +100,7 @@ class _CodeListPageState extends State<CodeListPage> {
     _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: false);
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
 
+    // get();
     _getData();
   }
 
@@ -202,7 +203,7 @@ class _CodeListPageState extends State<CodeListPage> {
                       }
                     }
 
-                    _list!.clear();
+                    _list.clear();
                     _getData();
                   });
                 },
@@ -262,7 +263,7 @@ class _CodeListPageState extends State<CodeListPage> {
                     _filters[i]['bool'] = false;
                   }
 
-                  if (_list != null) _list!.clear();
+                  if (_list != null) _list.clear();
                   _getData();
                 });
               }
@@ -279,7 +280,7 @@ class _CodeListPageState extends State<CodeListPage> {
                 _filters[i]['bool'] = false;
               }
 
-              if (_list != null) _list!.clear();
+              if (_list != null) _list.clear();
               _getData();
             });
           }
@@ -292,22 +293,22 @@ class _CodeListPageState extends State<CodeListPage> {
     if (!_isLoading && _mariaDBProvider.code == null) {
       return Expanded(child: Center(child: Text('No elements')));
     }
-    if (_list == null) {
+    if (_list.isEmpty) {
       return Expanded(child: Center(child: CircularProgressIndicator()));
     }
     return Expanded(
       child: ListView.builder(
         shrinkWrap: true,
-        itemCount: _list!.length,
+        itemCount: _list.length,
         itemBuilder: (context, index) {
           late String description;
           if (_settingsProvider.dtcLocale == DTCLocalization.both) {
             description =
-                '${_list![index]['en_description']}\n${_list![index]['kr_description']}';
+                '${_list[index]['en_description']}\n${_list[index]['kr_description']}';
           } else if (_settingsProvider.dtcLocale == DTCLocalization.enUS) {
-            description = '${_list![index]['en_description']}';
+            description = '${_list[index]['en_description']}';
           } else {
-            description = '${_list![index]['kr_description']}';
+            description = '${_list[index]['kr_description']}';
           }
 
           return ListTile(
@@ -315,11 +316,11 @@ class _CodeListPageState extends State<CodeListPage> {
               _mariaDBProvider.getAllVehicleModels();
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => DetailPage(result: _list![index]),
+                  builder: (_) => DetailPage(result: _list[index]),
                 ),
               );
             },
-            title: Text('${_list![index]['code']}'),
+            title: Text('${_list[index]['code']}'),
             subtitle: Text(description,
                 maxLines:
                     _settingsProvider.dtcLocale == DTCLocalization.both ? 2 : 1,

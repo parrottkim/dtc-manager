@@ -1,12 +1,8 @@
-import 'dart:io';
-
-import 'package:mysql1/mysql1.dart';
-
 class Log {
-  DateTime date;
+  String date;
   int codeId;
   int modelId;
-  String bodyNo;
+  String bodyNumber;
   String writer;
   String description;
 
@@ -14,7 +10,7 @@ class Log {
     required this.date,
     required this.codeId,
     required this.modelId,
-    required this.bodyNo,
+    required this.bodyNumber,
     required this.writer,
     required this.description,
   });
