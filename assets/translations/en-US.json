@@ -65,7 +65,7 @@
     "decoderPage2-2": "VIN cannot be empty",
     "decoderPage2-3": "Input value is not in a correct format",
   "decoderPage3": "VIN Detected",
-  "decoderPage4": "If you have problems recognizing barcodes, please click here.",
+  "decoderPage4": "If you have problems recognizing barcodes,\nplease click here.",
 
   "uploadPage": "Upload Log",
   "uploadPage1": "Model",

@@ -19,26 +19,13 @@ class _LogListPageState extends State<LogListPage> {
 
   List<dynamic> _list = [];
 
-  bool _isLoading = false;
-
   Future<List<dynamic>?> _getData() async {
-    if (mounted) {
-      setState(() {
-        _isLoading = true;
-      });
-    }
     await _mariaDBProvider.getSpecificLogs(widget.result['code_id']).then((_) {
       if (_mariaDBProvider.log != null) {
         _list = _mariaDBProvider.log!;
       }
     }).catchError((e) => ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(e.message))));
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
     return _list;
   }
 
@@ -52,7 +39,7 @@ class _LogListPageState extends State<LogListPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoading && _mariaDBProvider.log == null) {
+    if (_mariaDBProvider.log == null) {
       return Center(child: Text('No elements'));
     }
     if (_list.isEmpty) {

@@ -24,6 +24,9 @@ class MariaDBProvider extends ChangeNotifier {
   List<dynamic>? _model;
   List<dynamic>? get model => _model;
 
+  List<dynamic>? _decoder;
+  List<dynamic>? get decoder => _decoder;
+
   // List<ResultRow>? _modelCount;
   // List<ResultRow>? get modelCount => _modelCount;
 
@@ -42,6 +45,11 @@ class MariaDBProvider extends ChangeNotifier {
 
   getAllDTCCodes(bool flag, String? value) async {
     _code = await _mariaDBRepository.getAllDTCCodes(flag, value);
+    notifyListeners();
+  }
+
+  getDecoder() async {
+    _decoder = await _mariaDBRepository.getDecoder();
     notifyListeners();
   }
 

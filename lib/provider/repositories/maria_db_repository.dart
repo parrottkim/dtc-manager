@@ -9,11 +9,11 @@ import 'dart:convert';
 
 class MariaDBRepository {
   final headers = {
-    'Content-Type': 'application/x-www-form-urlencoding;',
-    'Accept': 'application/json; charset=utf-8',
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
   };
 
-  Future<dynamic> getAllAcronyms(bool flag, String? value) async {
+  Future getAllAcronyms(bool flag, String? value) async {
     final String url;
     url = !flag
         ? 'http://125.141.35.157:13306/acronyms/'
@@ -25,7 +25,11 @@ class MariaDBRepository {
         headers: headers,
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body)['data'];
+        if (jsonDecode(response.body)['data'].isNotEmpty) {
+          return jsonDecode(response.body)['data'];
+        } else {
+          return null;
+        }
       } else if (response.statusCode == 400) {
         throw Exception('400 Bad Request');
       } else if (response.statusCode == 401) {
@@ -52,7 +56,11 @@ class MariaDBRepository {
         headers: headers,
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body)['data'];
+        if (jsonDecode(response.body)['data'].isNotEmpty) {
+          return jsonDecode(response.body)['data'];
+        } else {
+          return null;
+        }
       } else if (response.statusCode == 400) {
         throw Exception('400 Bad Request');
       } else if (response.statusCode == 401) {
@@ -67,11 +75,39 @@ class MariaDBRepository {
     }
   }
 
-  Future<dynamic> getAllDTCCodes(bool flag, String? value) async {
+  Future getAllDTCCodes(bool flag, String? value) async {
     final String url;
     url = !flag
         ? 'http://125.141.35.157:13306/codes/'
         : 'http://125.141.35.157:13306/codes?value=${value!}';
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+      if (response.statusCode == 200) {
+        if (jsonDecode(response.body)['data'].isNotEmpty) {
+          return jsonDecode(response.body)['data'];
+        } else {
+          return null;
+        }
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
+    }
+  }
+
+  Future getDecoder() async {
+    final url = 'http://125.141.35.157:13306/decoder/';
 
     try {
       final response = await http.get(
@@ -116,7 +152,11 @@ class MariaDBRepository {
         headers: headers,
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body)['data'];
+        if (jsonDecode(response.body)['data'].isNotEmpty) {
+          return jsonDecode(response.body)['data'];
+        } else {
+          return null;
+        }
       } else if (response.statusCode == 400) {
         throw Exception('400 Bad Request');
       } else if (response.statusCode == 401) {
@@ -140,7 +180,11 @@ class MariaDBRepository {
         headers: headers,
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body)['data'];
+        if (jsonDecode(response.body)['data'].isNotEmpty) {
+          return jsonDecode(response.body)['data'];
+        } else {
+          return null;
+        }
       } else if (response.statusCode == 400) {
         throw Exception('400 Bad Request');
       } else if (response.statusCode == 401) {
@@ -164,7 +208,11 @@ class MariaDBRepository {
         headers: headers,
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body)['data'];
+        if (jsonDecode(response.body)['data'].isNotEmpty) {
+          return jsonDecode(response.body)['data'];
+        } else {
+          return null;
+        }
       } else if (response.statusCode == 400) {
         throw Exception('400 Bad Request');
       } else if (response.statusCode == 401) {
@@ -222,7 +270,9 @@ class MariaDBRepository {
       );
       if (response.statusCode == 200) {
         print(jsonDecode(response.body)['result']);
-        await uploadImages(jsonDecode(response.body)['result'], values);
+        for (var element in values) {
+          await uploadImages(jsonDecode(response.body)['result'], element);
+        }
       } else if (response.statusCode == 400) {
         throw Exception('400 Bad Request');
       } else if (response.statusCode == 401) {
@@ -237,36 +287,33 @@ class MariaDBRepository {
     }
   }
 
-  Future uploadImages(int id, List<XFile> values) async {
-    for (var element in values) {
-      print(File(element.path));
-      final url = 'http://125.141.35.157:13306/logs/upload-image/';
-      final body = {
-        'id': id,
-        'photo': File(element.path).readAsBytesSync(),
-        'photoName': File(element.path).path.split('image_picker').last,
-      };
+  Future uploadImages(int id, XFile value) async {
+    final url = 'http://125.141.35.157:13306/logs/upload-image/';
+    final body = {
+      'id': id,
+      'photo': File(value.path).readAsBytesSync(),
+      'photoName': File(value.path).path.split('image_picker').last,
+    };
 
-      try {
-        final response = await http.post(
-          Uri.parse(url),
-          headers: headers,
-          body: jsonEncode(body),
-        );
-        if (response.statusCode == 200) {
-          return;
-        } else if (response.statusCode == 400) {
-          throw Exception('400 Bad Request');
-        } else if (response.statusCode == 401) {
-          throw Exception('401 Unauthorized Request');
-        } else if (response.statusCode == 403) {
-          throw Exception('403 Forbidden Request');
-        } else {
-          throw Exception('${response.statusCode}');
-        }
-      } on SocketException {
-        throw Exception('exception1'.tr());
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 200) {
+        return;
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
       }
+    } on SocketException {
+      throw Exception('exception1'.tr());
     }
   }
 

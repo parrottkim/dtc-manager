@@ -53,7 +53,6 @@ class _AcronymPageState extends State<AcronymPage> {
     if (list.isEmpty) return;
     for (int i = 0, length = list.length; i < length; i++) {
       String tag = list[i].name.substring(0, 1).toUpperCase();
-      print(tag);
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].tagIndex = tag;
       } else {

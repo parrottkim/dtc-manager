@@ -1,6 +1,7 @@
 import 'package:dtc_manager/pages/decoder_pages/description_page.dart';
 import 'package:dtc_manager/pages/decoder_pages/scanner_page.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
+import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,16 @@ class DecoderPage extends StatefulWidget {
 
 class _DecoderPageState extends State<DecoderPage> {
   late BottomNavigationProvider _bottomNavigationProvider;
+  late MariaDBProvider _mariaDBProvider;
   late PageController _pageController;
   late int _currentIndex;
+
+  _loadData() async {
+    await _mariaDBProvider.getDecoder().catchError((e) =>
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message))));
+    ;
+  }
 
   void onTabNav(int index) {
     _pageController.animateToPage(index,
@@ -46,16 +55,7 @@ class _DecoderPageState extends State<DecoderPage> {
     return SafeArea(
       child: Scaffold(
         appBar: _appBar(),
-        body: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() => _bottomNavigationProvider.updatePage(index));
-          },
-          children: [
-            DescriptionPage(),
-            ScannerPage(),
-          ],
-        ),
+        body: _bodyWidget(),
         bottomNavigationBar: _bottomNavigationBar(),
       ),
     );
@@ -65,6 +65,19 @@ class _DecoderPageState extends State<DecoderPage> {
     return AppBar(
       titleSpacing: 0.0,
       title: MainLogo(subtitle: 'homePage3'.tr()),
+    );
+  }
+
+  Widget _bodyWidget() {
+    return PageView(
+      controller: _pageController,
+      onPageChanged: (index) {
+        setState(() => _bottomNavigationProvider.updatePage(index));
+      },
+      children: [
+        DescriptionPage(),
+        ScannerPage(),
+      ],
     );
   }
 

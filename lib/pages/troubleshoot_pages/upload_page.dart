@@ -22,13 +22,15 @@ class _UploadPageState extends State<UploadPage> {
   late BottomNavigationProvider _bottomNavigationProvider;
   late MariaDBProvider _mariaDBProvider;
 
-  dynamic? _selectedModel;
+  dynamic _selectedModel;
 
   bool _isVehicleSelected = false;
 
   bool _isBodyNumberEditing = false;
   bool _isWriterEditing = false;
   bool _isDescriptionEditing = false;
+
+  bool _isUploading = false;
 
   late TextEditingController _vehicleIdController;
 
@@ -214,224 +216,229 @@ class _UploadPageState extends State<UploadPage> {
   }
 
   Widget _bodyWidget() {
-    return SingleChildScrollView(
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('uploadPage1'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w500)),
-            _mariaDBProvider.model != null
-                ? DropdownButton(
-                    hint: Text('uploadPage1'.tr()),
-                    value: _selectedModel,
-                    onChanged: (dynamic value) {
-                      setState(() {
-                        if (value != null) {
-                          _selectedModel = value;
-                          _isVehicleSelected = true;
-                          _vehicleIdController.clear();
-                          _vehicleNoController.clear();
-                          _isBodyNumberEditing = false;
-                          _vehicleIdController.text +=
-                              value['model_code'].toString();
-                        }
-                      });
-                      WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                          FocusScope.of(context)
-                              .requestFocus(_vehicleNoFocusNode));
-                    },
-                    items: _mariaDBProvider.model!
-                        .map((value) => DropdownMenuItem(
-                              value: value,
-                              child: Text(value['model'].toString()),
-                            ))
-                        .toList(),
-                  )
-                : Container(
-                    margin: EdgeInsets.all(4.0),
-                    width: 30.0,
-                    height: 30.0,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-            SizedBox(height: 10.0),
-            Text('uploadPage2'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w500)),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: TextField(
-                    readOnly: true,
-                    controller: _vehicleIdController,
-                    enabled: _isVehicleSelected,
-                    decoration: InputDecoration(
-                      labelText: 'uploadPage3'.tr(),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10.0),
-                Expanded(
-                  flex: 7,
-                  child: TextField(
-                    controller: _vehicleNoController,
-                    focusNode: _vehicleNoFocusNode,
-                    enabled: _isVehicleSelected,
-                    decoration: InputDecoration(
-                      labelText: 'uploadPage4'.tr(),
-                      errorText: _isBodyNumberEditing
-                          ? _validateBodyNumber(_vehicleNoController.text)
-                          : null,
-                    ),
-                    onChanged: (value) {
-                      setState(() => _isBodyNumberEditing = true);
-                    },
-                    onSubmitted: (value) {
-                      _vehicleNoFocusNode.unfocus();
-                      WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                          FocusScope.of(context)
-                              .requestFocus(_writerFocusNode));
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20.0),
-            Divider(height: 1.0),
-            SizedBox(height: 20.0),
-            Text('uploadPage5'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w500)),
-            TextField(
-              controller: _writerController,
-              focusNode: _writerFocusNode,
-              decoration: InputDecoration(
-                labelText: 'uploadPage6'.tr(),
-                errorText: _isWriterEditing
-                    ? _validateTextField(_writerController.text)
-                    : null,
-              ),
-              onChanged: (value) {
-                setState(() => _isWriterEditing = true);
-              },
-              onSubmitted: (value) {
-                _writerFocusNode.unfocus();
-                WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                    FocusScope.of(context).requestFocus(_descriptionFocusNode));
-              },
-            ),
-            TextField(
-              controller: _descriptionController,
-              focusNode: _descriptionFocusNode,
-              minLines: 1,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: 'uploadPage7'.tr(),
-                errorText: _isDescriptionEditing
-                    ? _validateTextField(_descriptionController.text)
-                    : null,
-              ),
-              onChanged: (value) {
-                setState(() => _isDescriptionEditing = true);
-              },
-              onSubmitted: (value) {},
-            ),
-            SizedBox(height: 20.0),
-            Divider(height: 1.0),
-            SizedBox(height: 20.0),
-            Text('uploadPage8'.tr(),
-                style: TextStyle(fontWeight: FontWeight.w500)),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10.0),
-              child: _images.isEmpty
-                  ? MaterialButton(
-                      onPressed: () async {
-                        await _getImage();
+    return AbsorbPointer(
+      absorbing: _isUploading,
+      child: SingleChildScrollView(
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('uploadPage1'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w500)),
+              _mariaDBProvider.model != null
+                  ? DropdownButton(
+                      hint: Text('uploadPage1'.tr()),
+                      value: _selectedModel,
+                      onChanged: (dynamic value) {
+                        setState(() {
+                          if (value != null) {
+                            _selectedModel = value;
+                            _isVehicleSelected = true;
+                            _vehicleIdController.clear();
+                            _vehicleNoController.clear();
+                            _isBodyNumberEditing = false;
+                            _vehicleIdController.text +=
+                                value['model_code'].toString();
+                          }
+                        });
+                        WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                            FocusScope.of(context)
+                                .requestFocus(_vehicleNoFocusNode));
                       },
-                      minWidth: double.infinity,
-                      height: 300.0,
-                      color: Theme.of(context).colorScheme.secondary,
-                      child: Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 70.0,
-                      ),
+                      items: _mariaDBProvider.model!
+                          .map((value) => DropdownMenuItem(
+                                value: value,
+                                child: Text(value['model'].toString()),
+                              ))
+                          .toList(),
                     )
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: _images.length < 6
-                          ? _images.length + 1
-                          : _images.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 3.0,
-                        crossAxisSpacing: 3.0,
-                        childAspectRatio: 1.0,
+                  : Container(
+                      margin: EdgeInsets.all(4.0),
+                      width: 30.0,
+                      height: 30.0,
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
-                      itemBuilder: (context, index) {
-                        if (index == 0 && _images.length < 6) {
-                          return MaterialButton(
-                            onPressed: () async {
-                              await _getImage();
-                            },
-                            minWidth: double.infinity,
-                            height: 300.0,
-                            color: Theme.of(context).colorScheme.secondary,
-                            child: Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 30.0,
-                            ),
-                          );
-                        }
-                        return Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Image.file(
-                                File(_images[
-                                        _images.length < 6 ? index - 1 : index]
-                                    .path),
-                                fit: BoxFit.cover),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Container(
-                                alignment: Alignment.center,
-                                margin: EdgeInsets.all(4.0),
-                                width: 24.0,
-                                height: 24.0,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                      width: 1,
-                                      color: Colors.white.withOpacity(0.7)),
-                                  color: Colors.black.withOpacity(0.3),
-                                ),
-                                child: RawMaterialButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _images.removeAt(index - 1);
-                                    });
-                                  },
-                                  shape: CircleBorder(),
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 12.0,
-                                    color: Colors.white,
+                    ),
+              SizedBox(height: 10.0),
+              Text('uploadPage2'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w500)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: TextField(
+                      readOnly: true,
+                      controller: _vehicleIdController,
+                      enabled: _isVehicleSelected,
+                      decoration: InputDecoration(
+                        labelText: 'uploadPage3'.tr(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 7,
+                    child: TextField(
+                      controller: _vehicleNoController,
+                      focusNode: _vehicleNoFocusNode,
+                      enabled: _isVehicleSelected,
+                      decoration: InputDecoration(
+                        labelText: 'uploadPage4'.tr(),
+                        errorText: _isBodyNumberEditing
+                            ? _validateBodyNumber(_vehicleNoController.text)
+                            : null,
+                      ),
+                      onChanged: (value) {
+                        setState(() => _isBodyNumberEditing = true);
+                      },
+                      onSubmitted: (value) {
+                        _vehicleNoFocusNode.unfocus();
+                        WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                            FocusScope.of(context)
+                                .requestFocus(_writerFocusNode));
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.0),
+              Divider(height: 1.0),
+              SizedBox(height: 20.0),
+              Text('uploadPage5'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w500)),
+              TextField(
+                controller: _writerController,
+                focusNode: _writerFocusNode,
+                decoration: InputDecoration(
+                  labelText: 'uploadPage6'.tr(),
+                  errorText: _isWriterEditing
+                      ? _validateTextField(_writerController.text)
+                      : null,
+                ),
+                onChanged: (value) {
+                  setState(() => _isWriterEditing = true);
+                },
+                onSubmitted: (value) {
+                  _writerFocusNode.unfocus();
+                  WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                      FocusScope.of(context)
+                          .requestFocus(_descriptionFocusNode));
+                },
+              ),
+              TextField(
+                controller: _descriptionController,
+                focusNode: _descriptionFocusNode,
+                minLines: 1,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'uploadPage7'.tr(),
+                  errorText: _isDescriptionEditing
+                      ? _validateTextField(_descriptionController.text)
+                      : null,
+                ),
+                onChanged: (value) {
+                  setState(() => _isDescriptionEditing = true);
+                },
+                onSubmitted: (value) {},
+              ),
+              SizedBox(height: 20.0),
+              Divider(height: 1.0),
+              SizedBox(height: 20.0),
+              Text('uploadPage8'.tr(),
+                  style: TextStyle(fontWeight: FontWeight.w500)),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10.0),
+                child: _images.isEmpty
+                    ? MaterialButton(
+                        onPressed: () async {
+                          await _getImage();
+                        },
+                        minWidth: double.infinity,
+                        height: 300.0,
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 70.0,
+                        ),
+                      )
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: _images.length < 6
+                            ? _images.length + 1
+                            : _images.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 3.0,
+                          crossAxisSpacing: 3.0,
+                          childAspectRatio: 1.0,
+                        ),
+                        itemBuilder: (context, index) {
+                          if (index == 0 && _images.length < 6) {
+                            return MaterialButton(
+                              onPressed: () async {
+                                await _getImage();
+                              },
+                              minWidth: double.infinity,
+                              height: 300.0,
+                              color: Theme.of(context).colorScheme.secondary,
+                              child: Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 30.0,
+                              ),
+                            );
+                          }
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.file(
+                                  File(_images[_images.length < 6
+                                          ? index - 1
+                                          : index]
+                                      .path),
+                                  fit: BoxFit.cover),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  margin: EdgeInsets.all(4.0),
+                                  width: 24.0,
+                                  height: 24.0,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        width: 1,
+                                        color: Colors.white.withOpacity(0.7)),
+                                    color: Colors.black.withOpacity(0.3),
+                                  ),
+                                  child: RawMaterialButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _images.removeAt(index - 1);
+                                      });
+                                    },
+                                    shape: CircleBorder(),
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 12.0,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          ],
-                        );
-                      },
-                    ),
-            ),
-          ],
+                              )
+                            ],
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -446,44 +453,53 @@ class _UploadPageState extends State<UploadPage> {
       child: Material(
         color: Theme.of(context).colorScheme.secondary,
         child: InkWell(
-          onTap: () async {
-            Log log = Log(
-              date: DateFormat("yyyy-MM-dd HH:mm:ss.ms")
-                  .format(DateTime.now().toUtc()),
-              codeId: widget.result['code_id'],
-              modelId: _selectedModel!['model_id'],
-              bodyNumber: _vehicleNoController.text,
-              writer: _writerController.text,
-              description: _descriptionController.text,
-            );
-            await _mariaDBProvider
-                .uploadLog(log, _images)
-                .then(
-                    (_) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('settings1-3-12').tr(),
-                        )))
-                .catchError((e) => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('settings1-3-13').tr())));
+          onTap: !_isUploading
+              ? () async {
+                  setState(() {
+                    _isUploading = true;
+                  });
+                  Log log = Log(
+                    date: DateFormat("yyyy-MM-dd HH:mm:ss.ms")
+                        .format(DateTime.now().toUtc()),
+                    codeId: widget.result['code_id'],
+                    modelId: _selectedModel!['model_id'],
+                    bodyNumber: _vehicleNoController.text,
+                    writer: _writerController.text,
+                    description: _descriptionController.text,
+                  );
+                  await _mariaDBProvider
+                      .uploadLog(log, _images)
+                      .then((_) =>
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('settings1-3-12').tr(),
+                          )))
+                      .catchError((e) => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                              SnackBar(content: Text('settings1-3-13').tr())));
 
-            // Navigator.of(context).pop();
-            // Navigator.of(context).pushReplacement(
-            //   MaterialPageRoute(
-            //     builder: (_) => DetailPage(result: widget.result, index: 2),
-            //   ),
-            // );
-          },
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          DetailPage(result: widget.result, index: 2),
+                    ),
+                  );
+                }
+              : null,
           child: Container(
             alignment: Alignment.center,
             width: double.infinity,
             height: 50.0,
-            child: Text(
-              'uploadPage9'.tr(),
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: !_isUploading
+                ? Text(
+                    'uploadPage9'.tr(),
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : Center(child: CircularProgressIndicator(color: Colors.white)),
           ),
         ),
       ),
