@@ -18,16 +18,8 @@ class DecoderPage extends StatefulWidget {
 
 class _DecoderPageState extends State<DecoderPage> {
   late BottomNavigationProvider _bottomNavigationProvider;
-  late MariaDBProvider _mariaDBProvider;
   late PageController _pageController;
   late int _currentIndex;
-
-  _loadData() async {
-    await _mariaDBProvider.getDecoder().catchError((e) =>
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message))));
-    ;
-  }
 
   void onTabNav(int index) {
     _pageController.animateToPage(index,

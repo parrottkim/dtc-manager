@@ -12,15 +12,38 @@ class DescriptionPage extends StatefulWidget {
 class _DescriptionPageState extends State<DescriptionPage> {
   late MariaDBProvider _mariaDBProvider;
 
+  List<dynamic> _list = [];
+
+  bool _isLoading = false;
+
+  _loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _mariaDBProvider.getDecoder().then((_) {
+      if (_mariaDBProvider.decoder != null) {
+        _list = _mariaDBProvider.decoder!;
+      }
+    }).catchError((e) => ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(e.message))));
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: false);
+    _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_mariaDBProvider.decoder == null) {
+    if (!_isLoading && _mariaDBProvider.decoder == null) {
+      return Center(child: Text('No elements'));
+    }
+    if (_list.isEmpty) {
       return Center(child: CircularProgressIndicator());
     }
     return Column(
@@ -94,8 +117,10 @@ class _DescriptionPageState extends State<DescriptionPage> {
                       VerticalDivider(
                           width: 1, color: Colors.grey.withOpacity(0.5)),
                       SizedBox(width: 10.0),
-                      Text(
-                        _mariaDBProvider.decoder![0]['data'][index]['title'],
+                      Flexible(
+                        child: Text(
+                          _mariaDBProvider.decoder![0]['data'][index]['title'],
+                        ),
                       ),
                     ],
                   ),
