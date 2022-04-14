@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:share_plus/share_plus.dart';
 
 class LogDetailPage extends StatefulWidget {
   final dynamic result;
@@ -284,16 +283,16 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
       appBar: AppBar(
         backgroundColor: Colors.black.withOpacity(0.4),
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            splashRadius: 22.0,
-            icon: Icon(Icons.share),
-            onPressed: () async {
-              File file = await _getCacheImage(widget.items[currentIndex]);
-              Share.shareFiles([file.path], text: 'Share image');
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     splashRadius: 22.0,
+        //     icon: Icon(Icons.share),
+        //     onPressed: () async {
+        //       File file = await _getCacheImage(widget.items[currentIndex]);
+        //       Share.shareFiles([file.path], text: 'Share image');
+        //     },
+        //   ),
+        // ],
       ),
       body: Container(
         decoration: widget.backgroundDecoration,

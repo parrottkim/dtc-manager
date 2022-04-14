@@ -34,7 +34,7 @@ class _DatabasePageState extends State<DatabasePage> {
   Widget _bodyWidget() {
     _settingsItems = [
       {
-        'leading': const Icon(Icons.abc, color: Colors.black),
+        'leading': const Icon(Icons.text_format, color: Colors.black),
         'title': Text('settings1-1').tr(),
         'route': null,
       },
