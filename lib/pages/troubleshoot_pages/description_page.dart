@@ -47,7 +47,7 @@ class _DescriptionPageState extends State<DescriptionPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${widget.result['code']}',
+                        '${widget.result['dtc_code']}',
                         style: TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,

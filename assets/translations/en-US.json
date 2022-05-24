@@ -4,6 +4,27 @@
 
   "exception1": "Server connection error",
 
+  "login1": "Sign In",
+  "login2": "Sign Up",
+    "login2-1": "Email can't be empty",
+    "login2-2": "Valid email required",
+    "login2-3": "This email is already registered",
+    "login2-4": "Username can't be empty",
+    "login2-5": "Valid username required",
+    "login2-6": "Password can't be empty",
+    "login2-7": "Password must be at least 6 characters long",
+    "login2-8": "Password is not matched",
+    "login2-9": "Your request has been completed",
+    "login2-10": "After the administrator confirms the request and approvies it, you can sign in",
+  
+  "loginStatus1": "Email authentication is required",
+    "loginStatus1-1": "Incorrect email",
+    "loginStatus1-2": "Incorrect password",
+    "loginStatus1-3": "Email not found",
+    "loginStatus1-4": "This email was disabled",
+    "loginStatus1-5": "Please check email and password",
+    "loginStatus1-6": "This email is not authorized. Please contact the administrator",
+
   "settings1": "Data Management",
     "settings1-1": "Acronyms",
     "settings1-2": "DTC Codes",

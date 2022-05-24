@@ -27,6 +27,12 @@ class MariaDBProvider extends ChangeNotifier {
   List<dynamic>? _decoder;
   List<dynamic>? get decoder => _decoder;
 
+  bool? _isEmailDuplicated;
+  bool? get isEmailDuplicated => _isEmailDuplicated;
+
+  bool? _isAuthorized;
+  bool? get isAuthorized => _isAuthorized;
+
   // List<ResultRow>? _modelCount;
   // List<ResultRow>? get modelCount => _modelCount;
 
@@ -73,8 +79,24 @@ class MariaDBProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  getEmailDuplicated(String value) async {
+    _isEmailDuplicated = await _mariaDBRepository.getEmailDuplicated(value);
+    notifyListeners();
+  }
+
   uploadLog(Log log, List<XFile> values) async {
     await _mariaDBRepository.uploadLog(log, values);
+    notifyListeners();
+  }
+
+  checkAuthroized(String email, String token) async {
+    _isAuthorized = await _mariaDBRepository.checkAuthroized(email, token);
+    notifyListeners();
+  }
+
+  registerUser(
+      String email, String username, String password, String token) async {
+    await _mariaDBRepository.registerUser(email, username, password, token);
     notifyListeners();
   }
 

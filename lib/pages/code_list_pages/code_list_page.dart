@@ -320,7 +320,7 @@ class _CodeListPageState extends State<CodeListPage> {
                 ),
               );
             },
-            title: Text('${_list[index]['code']}'),
+            title: Text('${_list[index]['dtc_code']}'),
             subtitle: Text(description,
                 maxLines:
                     _settingsProvider.dtcLocale == DTCLocalization.both ? 2 : 1,

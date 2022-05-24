@@ -76,7 +76,7 @@ class _DetailPageState extends State<DetailPage> {
     return AppBar(
       titleSpacing: 0.0,
       title: MainLogo(
-          subtitle: '${widget.result['code']} ${'troubleshootPage'.tr()}'),
+          subtitle: '${widget.result['dtc_code']} ${'troubleshootPage'.tr()}'),
     );
   }
 

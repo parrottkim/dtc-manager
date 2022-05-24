@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dtc_manager/model/log.dart';
@@ -78,8 +79,8 @@ class MariaDBRepository {
   Future getAllDTCCodes(bool flag, String? value) async {
     final String url;
     url = !flag
-        ? 'http://125.141.35.157:13306/codes/'
-        : 'http://125.141.35.157:13306/codes?value=${value!}';
+        ? 'http://125.141.35.157:13306/dtc_codes/'
+        : 'http://125.141.35.157:13306/dtc_codes?value=${value!}';
 
     try {
       final response = await http.get(
@@ -251,6 +252,30 @@ class MariaDBRepository {
     }
   }
 
+  Future getEmailDuplicated(String value) async {
+    final url = 'http://125.141.35.157:13306/users/email-exist?email=${value}';
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
+    }
+  }
+
   Future uploadLog(Log value, List<XFile> values) async {
     final url = 'http://125.141.35.157:13306/logs/upload-log/';
     final body = {
@@ -293,6 +318,67 @@ class MariaDBRepository {
       'id': id,
       'photo': File(value.path).readAsBytesSync(),
       'photoName': File(value.path).path.split('image_picker').last,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 200) {
+        return;
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
+    }
+  }
+
+  Future checkAuthroized(String email, String token) async {
+    final url = 'http://125.141.35.157:13306/users/check-authorized/';
+    final body = {
+      'email': email,
+      'token': token,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else if (response.statusCode == 400) {
+        throw Exception('400 Bad Request');
+      } else if (response.statusCode == 401) {
+        throw Exception('401 Unauthorized Request');
+      } else if (response.statusCode == 403) {
+        throw Exception('403 Forbidden Request');
+      } else {
+        throw Exception('${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('exception1'.tr());
+    }
+  }
+
+  Future registerUser(
+      String email, String username, String password, String token) async {
+    final url = 'http://125.141.35.157:13306/users/register/';
+    final body = {
+      'email': email,
+      'username': username,
+      'password': password,
+      'token': token,
     };
 
     try {

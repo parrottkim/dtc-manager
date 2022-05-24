@@ -210,8 +210,8 @@ class _UploadPageState extends State<UploadPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
-      title:
-          MainLogo(subtitle: '${'uploadPage'.tr()} - ${widget.result['code']}'),
+      title: MainLogo(
+          subtitle: '${'uploadPage'.tr()} - ${widget.result['dtc_code']}'),
     );
   }
 
