@@ -31,19 +31,17 @@ class _AcronymPageState extends State<AcronymPage> {
     setState(() {
       _isLoading = true;
     });
-    await _mariaDBProvider
-        .getAllAcronyms(_isSearching, _textEditingController.text)
-        .then((_) {
-      _mariaDBProvider.acronym!
-          .toList()
-          .map((e) => e)
-          .toList()
-          .forEach((element) {
-        _acronyms.add(Acronym.fromJson(element));
-      });
-      _handleList(_acronyms);
-    }).catchError((e) => ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message))));
+    await _mariaDBProvider.getAllAcronyms(
+        _isSearching, _textEditingController.text);
+
+    _mariaDBProvider.acronym!
+        .toList()
+        .map((e) => e.fields)
+        .toList()
+        .forEach((element) {
+      _acronyms.add(Acronym.fromJson(element));
+    });
+    _handleList(_acronyms);
     setState(() {
       _isLoading = false;
     });

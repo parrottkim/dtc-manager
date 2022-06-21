@@ -467,15 +467,17 @@ class _UploadPageState extends State<UploadPage> {
                     writer: _writerController.text,
                     description: _descriptionController.text,
                   );
-                  await _mariaDBProvider
-                      .uploadLog(log, _images)
-                      .then((_) =>
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('settings1-3-12').tr(),
-                          )))
-                      .catchError((e) => ScaffoldMessenger.of(context)
-                          .showSnackBar(
-                              SnackBar(content: Text('settings1-3-13').tr())));
+                  await _mariaDBProvider.uploadLog(log).then((_) async {
+                    await _mariaDBProvider
+                        .uploadImages(log, _images)
+                        .then((_) =>
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('settings1-3-12').tr(),
+                            )))
+                        .catchError((e) => ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(
+                                content: Text('settings1-3-13').tr())));
+                  });
 
                   Navigator.of(context).pop();
                   Navigator.of(context).pushReplacement(

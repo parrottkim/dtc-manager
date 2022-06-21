@@ -31,19 +31,17 @@ class _AirbagPageState extends State<AirbagPage> {
     setState(() {
       _isLoading = true;
     });
-    await _mariaDBProvider
-        .getAllAirbags(_isSearching, _textEditingController.text)
-        .then((_) {
-      _mariaDBProvider.airbag!
-          .toList()
-          .map((e) => e)
-          .toList()
-          .forEach((element) {
-        _airbags.add(Airbag.fromJson(element));
-      });
-      _handleList(_airbags);
-    }).catchError((e) => ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message))));
+    await _mariaDBProvider.getAllAirbags(
+        _isSearching, _textEditingController.text);
+
+    _mariaDBProvider.airbag!
+        .toList()
+        .map((e) => e.fields)
+        .toList()
+        .forEach((element) {
+      _airbags.add(Airbag.fromJson(element));
+    });
+    _handleList(_airbags);
     setState(() {
       _isLoading = false;
     });

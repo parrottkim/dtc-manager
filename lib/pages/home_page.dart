@@ -157,25 +157,25 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
-          ListTile(
-            onTap: () {
-              _authenticationProvider.signOut();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SignInPage(),
-                ),
-                (_) => false,
-              );
-            },
-            leading: Icon(Icons.logout_sharp, color: Colors.black),
-            title: Text(
-              'Sign out',
-              style: TextStyle(
-                fontSize: 16.0,
-              ),
-            ),
-          ),
+          // ListTile(
+          //   onTap: () {
+          //     _authenticationProvider.signOut();
+          //     Navigator.pushAndRemoveUntil(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (_) => SignInPage(),
+          //       ),
+          //       (_) => false,
+          //     );
+          //   },
+          //   leading: Icon(Icons.logout_sharp, color: Colors.black),
+          //   title: Text(
+          //     'Sign out',
+          //     style: TextStyle(
+          //       fontSize: 16.0,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

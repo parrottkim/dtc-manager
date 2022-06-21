@@ -1,4 +1,4 @@
-import 'package:dtc_manager/pages/auth_page.dart';
+import 'package:dtc_manager/pages/home_page.dart';
 import 'package:dtc_manager/provider/authentication_provider.dart';
 import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/provider/maria_db_provider.dart';
@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
         localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
         locale: context.locale,
-        home: AuthPage(),
+        home: HomePage(),
       ),
     );
   }
