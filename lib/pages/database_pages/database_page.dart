@@ -26,6 +26,7 @@ class _DatabasePageState extends State<DatabasePage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: 'settings1'.tr()),
     );

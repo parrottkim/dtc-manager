@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dtc_manager/constants.dart';
 import 'package:dtc_manager/pages/settings_pages/settings_page.dart';
 import 'package:dtc_manager/pages/troubleshoot_pages/detail_page.dart';
@@ -17,8 +16,6 @@ class CodeListPage extends StatefulWidget {
 }
 
 class _CodeListPageState extends State<CodeListPage> {
-  final firestore = FirebaseFirestore.instance;
-
   late MariaDBProvider _mariaDBProvider;
   late SettingsProvider _settingsProvider;
 
@@ -56,6 +53,7 @@ class _CodeListPageState extends State<CodeListPage> {
     setState(() {
       _isLoading = false;
     });
+    print(_list.first[0].runtimeType);
     return _list;
   }
 
@@ -116,6 +114,7 @@ class _CodeListPageState extends State<CodeListPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: 'homePage4'.tr()),
     );

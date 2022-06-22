@@ -55,6 +55,7 @@ class _DecoderPageState extends State<DecoderPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: 'homePage3'.tr()),
     );

@@ -109,6 +109,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
+      centerTitle: true,
       title: MainLogo(subtitle: 'homePage5'.tr()),
     );
   }

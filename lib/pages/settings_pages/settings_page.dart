@@ -25,6 +25,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: 'settings2'.tr()),
     );

@@ -4,10 +4,11 @@ import 'package:intl/intl.dart';
 
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class LogListPage extends StatefulWidget {
-  final Map<String, dynamic> result;
+  final ResultRow result;
   LogListPage({Key? key, required this.result}) : super(key: key);
 
   @override

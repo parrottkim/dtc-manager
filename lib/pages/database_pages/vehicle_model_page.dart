@@ -387,6 +387,7 @@ class _VehicleModelPageState extends State<VehicleModelPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: '${'settings1'.tr()} > ${'settings1-3'.tr()}'),
     );

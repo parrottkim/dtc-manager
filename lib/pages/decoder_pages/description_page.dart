@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +24,7 @@ class _DescriptionPageState extends State<DescriptionPage> {
     });
     await _mariaDBProvider.getDecoder().then((_) {
       if (_mariaDBProvider.decoder != null) {
-        _list = _mariaDBProvider.decoder!;
+        _list = json.decode(_mariaDBProvider.decoder![0]['data'].toString());
       }
     }).catchError((e) => ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(e.message))));
@@ -84,7 +86,7 @@ class _DescriptionPageState extends State<DescriptionPage> {
             padding:
                 const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
             shrinkWrap: true,
-            itemCount: _mariaDBProvider.decoder![0]['data'].length,
+            itemCount: _list.length,
             itemBuilder: (context, index) {
               return Container(
                 margin: EdgeInsets.only(left: 0.4, top: 0.4, bottom: 1.0),
@@ -106,7 +108,7 @@ class _DescriptionPageState extends State<DescriptionPage> {
                       SizedBox(
                         width: 40.0,
                         child: Text(
-                          _mariaDBProvider.decoder![0]['data'][index]['digit'],
+                          _list[index]['digit'],
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -119,7 +121,7 @@ class _DescriptionPageState extends State<DescriptionPage> {
                       SizedBox(width: 10.0),
                       Flexible(
                         child: Text(
-                          _mariaDBProvider.decoder![0]['data'][index]['title'],
+                          _list[index]['title'],
                         ),
                       ),
                     ],

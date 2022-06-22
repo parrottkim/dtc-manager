@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
 
 class InspectionPage extends StatefulWidget {
-  final Map<String, dynamic> result;
+  final ResultRow result;
   InspectionPage({Key? key, required this.result}) : super(key: key);
 
   @override

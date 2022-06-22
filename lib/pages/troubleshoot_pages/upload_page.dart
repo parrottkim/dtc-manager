@@ -8,10 +8,11 @@ import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class UploadPage extends StatefulWidget {
-  final Map<String, dynamic> result;
+  final ResultRow result;
   UploadPage({Key? key, required this.result}) : super(key: key);
 
   @override
@@ -209,6 +210,7 @@ class _UploadPageState extends State<UploadPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(
           subtitle: '${'uploadPage'.tr()} - ${widget.result['dtc_code']}'),

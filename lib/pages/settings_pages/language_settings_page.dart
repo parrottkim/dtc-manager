@@ -35,6 +35,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: '${'settings2'.tr()} > ${'settings2-1'.tr()}'),
     );

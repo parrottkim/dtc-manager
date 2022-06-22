@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dtc_manager/provider/maria_db_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,31 +19,34 @@ class _ResultPageState extends State<ResultPage> {
 
   _getDecoder() {
     var vin = widget.result.split('');
+    List<dynamic> _description =
+        json.decode(_mariaDBProvider.decoder![0]['data'].toString());
+    List<dynamic> _decoder =
+        json.decode(_mariaDBProvider.decoder![1]['data'].toString());
+
     List<Map<String, String>> list =
         List.filled(12, {'title': '', 'value': ''});
-    for (var e1 in _mariaDBProvider.decoder![1]['data']) {
+
+    for (var e1 in _decoder) {
       for (var e2 in e1['digit'][3]['code']) {
         if (e2['code'] == vin[3]) {
           for (int i = 0; i < vin.length - 6; i++) {
             for (var e3 in e1['digit'][i]['code']) {
               if (e3['code'] == vin[i]) {
                 list[i] = {
-                  'title': _mariaDBProvider.decoder![0]['data'][i]['title'],
+                  'title': _description[i]['title'],
                   'value': e3['value']
                 };
               } else if (e3['code'] == '*') {
                 list[i] = {
-                  'title': _mariaDBProvider.decoder![0]['data'][i]['title'],
+                  'title': _description[i]['title'],
                   'value': '${vin[i]} | ${e3['value']}'
                 };
               } else if (e3['code'] == null && e3['value'] == null) {
-                list[i] = {
-                  'title': _mariaDBProvider.decoder![0]['data'][i]['title'],
-                  'value': vin[i]
-                };
+                list[i] = {'title': _description[i]['title'], 'value': vin[i]};
               } else {
                 list[i] = {
-                  'title': _mariaDBProvider.decoder![0]['data'][i]['title'],
+                  'title': _description[i]['title'],
                   'value': 'NO DATA'
                 };
               }
@@ -51,9 +56,10 @@ class _ResultPageState extends State<ResultPage> {
       }
     }
     list[11] = {
-      'title': _mariaDBProvider.decoder![0]['data'][11]['title'],
+      'title': _description[11]['title'],
       'value': widget.result.substring(11, 17)
     };
+    print(list);
     return list;
   }
 
@@ -75,6 +81,7 @@ class _ResultPageState extends State<ResultPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: 'homePage3'.tr()),
     );

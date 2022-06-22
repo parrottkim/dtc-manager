@@ -31,17 +31,20 @@ class _AcronymPageState extends State<AcronymPage> {
     setState(() {
       _isLoading = true;
     });
-    await _mariaDBProvider.getAllAcronyms(
-        _isSearching, _textEditingController.text);
+    await _mariaDBProvider
+        .getAllAcronyms(_isSearching, _textEditingController.text)
+        .then((_) {
+      _mariaDBProvider.acronym!
+          .toList()
+          .map((e) => e.fields)
+          .toList()
+          .forEach((element) {
+        _acronyms.add(Acronym.fromJson(element));
+      });
+      _handleList(_acronyms);
+    }).catchError((e) => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message))));
 
-    _mariaDBProvider.acronym!
-        .toList()
-        .map((e) => e.fields)
-        .toList()
-        .forEach((element) {
-      _acronyms.add(Acronym.fromJson(element));
-    });
-    _handleList(_acronyms);
     setState(() {
       _isLoading = false;
     });
@@ -138,6 +141,7 @@ class _AcronymPageState extends State<AcronymPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(subtitle: 'homePage1'.tr()),
     );

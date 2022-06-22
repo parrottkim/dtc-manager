@@ -88,10 +88,10 @@ class MariaDBRepository {
 
       var result;
       if (!flag) {
-        result = await conn.query('select * from codes');
+        result = await conn.query('select * from dtc_codes');
       } else {
         result = await conn.query(
-            'select * from codes where en_description like ? or kr_description like ? or code like ?',
+            'select * from dtc_codes where en_description like ? or kr_description like ? or dtc_code like ?',
             [
               '%$value%',
               '%$value%',
@@ -152,18 +152,18 @@ class MariaDBRepository {
       var result;
       if (!flag) {
         result = await conn.query(
-            'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id order by date desc');
+            'select * from logs left join models on logs.model_id = models.model_id left join dtc_codes on logs.dtc_code_id = dtc_codes.dtc_code_id order by date desc');
       } else {
         if (filter == 'body_number') {
           final _whitespaceRE = RegExp(r"\s+");
           var split = value!.replaceAll(_whitespaceRE, ' ').split(' ');
           print(split);
           result = await conn.query(
-              'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id where model_code = ? and body_no = ?',
+              'select * from logs left join models on logs.model_id = models.model_id left join dtc_codes on logs.dtc_code_id = dtc_codes.dtc_code_id where model_code = ? and body_no = ?',
               [split[0], split[1]]);
         } else {
           result = await conn.query(
-              'select * from logs left join models on logs.model_id = models.model_id left join codes on logs.code_id = codes.code_id where ${filter} like ?',
+              'select * from logs left join models on logs.model_id = models.model_id left join dtc_codes on logs.dtc_code_id = dtc_codes.dtc_code_id where ${filter} like ?',
               ['%${value}%']);
         }
       }
@@ -188,7 +188,7 @@ class MariaDBRepository {
       );
 
       var result = await conn.query(
-          'select * from logs left join models on logs.model_id = models.model_id where code_id = ? order by date desc',
+          'select * from logs left join models on logs.model_id = models.model_id where dtc_code_id = ? order by date desc',
           [value]);
       await conn.close();
       return result.toList();
@@ -356,7 +356,7 @@ class MariaDBRepository {
       );
 
       var result = await conn.query(
-        'insert into logs (date, code_id, model_id, body_no, writer, description) values (?, ?, ?, ?, ?, ?)',
+        'insert into logs (date, dtc_code_id, model_id, body_no, writer, description) values (?, ?, ?, ?, ?, ?)',
         [
           value.date,
           value.codeId,
@@ -387,7 +387,7 @@ class MariaDBRepository {
       );
 
       var select = await conn.query(
-          'select log_id from logs where date = ? and code_id = ? and model_id = ? and body_no = ? and writer = ? and description = ?',
+          'select log_id from logs where date = ? and dtc_code_id = ? and model_id = ? and body_no = ? and writer = ? and description = ?',
           [
             value.date,
             value.codeId,

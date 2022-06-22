@@ -6,11 +6,12 @@ import 'package:dtc_manager/provider/bottom_navigation_provider.dart';
 import 'package:dtc_manager/widgets/main_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 
 class DetailPage extends StatefulWidget {
   final int? index;
-  final Map<String, dynamic> result;
+  final ResultRow result;
   DetailPage({Key? key, this.index, required this.result}) : super(key: key);
 
   @override
@@ -74,6 +75,7 @@ class _DetailPageState extends State<DetailPage> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: false,
       titleSpacing: 0.0,
       title: MainLogo(
           subtitle: '${widget.result['dtc_code']} ${'troubleshootPage'.tr()}'),
