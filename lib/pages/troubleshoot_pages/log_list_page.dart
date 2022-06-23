@@ -21,12 +21,14 @@ class _LogListPageState extends State<LogListPage> {
   List<dynamic> _list = [];
 
   Future<List<dynamic>?> _getData() async {
-    await _mariaDBProvider.getSpecificLogs(widget.result['code_id']).then((_) {
+    await _mariaDBProvider
+        .getSpecificLogs(widget.result['dtc_code_id'])
+        .then((_) {
       if (_mariaDBProvider.log != null) {
         _list = _mariaDBProvider.log!;
       }
     }).catchError((e) => ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(e.message))));
+            .showSnackBar(SnackBar(content: Text(e.message))));
     return _list;
   }
 
@@ -91,8 +93,7 @@ class _LogListPageState extends State<LogListPage> {
                   ),
                 ),
                 Text(
-                  DateFormat('yyyy.MM.dd HH:mm')
-                      .format(DateTime.parse(_list[index]['date'])),
+                  DateFormat('yyyy.MM.dd HH:mm').format(_list[index]['date']),
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.black.withOpacity(0.4),

@@ -347,7 +347,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                         ),
                         Expanded(
                           child: Text(
-                            getDetailDate(DateTime.parse(_list[index]['date'])),
+                            getDetailDate(_list[index]['date']),
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               fontSize: 14.0,
@@ -359,7 +359,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
                     ),
                     Divider(),
                     Text(
-                      '${_list[index]['code']}',
+                      '${_list[index]['dtc_code']}',
                       style: TextStyle(
                           fontSize: 18.0, fontWeight: FontWeight.bold),
                     ),

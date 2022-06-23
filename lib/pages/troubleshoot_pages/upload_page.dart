@@ -461,9 +461,8 @@ class _UploadPageState extends State<UploadPage> {
                     _isUploading = true;
                   });
                   Log log = Log(
-                    date: DateFormat("yyyy-MM-dd HH:mm:ss.ms")
-                        .format(DateTime.now().toUtc()),
-                    codeId: widget.result['code_id'],
+                    date: DateTime.now().toUtc(),
+                    codeId: widget.result['dtc_code_id'],
                     modelId: _selectedModel!['model_id'],
                     bodyNumber: _vehicleNoController.text,
                     writer: _writerController.text,

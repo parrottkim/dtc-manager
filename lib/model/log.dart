@@ -1,5 +1,5 @@
 class Log {
-  String date;
+  DateTime date;
   int codeId;
   int modelId;
   String bodyNumber;

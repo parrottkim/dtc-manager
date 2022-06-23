@@ -42,7 +42,7 @@ class _LogDetailPageState extends State<LogDetailPage> {
         for (var element in _mariaDBProvider.image!) {
           _list.add({
             '${element['photo_name']}':
-                Uint8List.fromList(element['photo']['data'].cast<int>()),
+                Uint8List.fromList(element['photo'].toBytes()),
           });
         }
       }
@@ -146,7 +146,7 @@ class _LogDetailPageState extends State<LogDetailPage> {
                   ),
                   Text(
                     DateFormat('yyyy.MM.dd HH:mm')
-                        .format(DateTime.parse(widget.result['date'])),
+                        .format(widget.result['date']),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.black.withOpacity(0.4),
