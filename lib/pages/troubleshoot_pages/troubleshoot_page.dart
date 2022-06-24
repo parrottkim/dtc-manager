@@ -71,7 +71,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
       },
       {
         'title': 'homePage5-3'.tr(),
-        'flag': 'code',
+        'flag': 'dtc_code',
         'bool': false,
       },
       {
@@ -88,7 +88,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: true);
+    _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: false);
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
     _bottomNavigationProvider =
         Provider.of<BottomNavigationProvider>(context, listen: false);
@@ -109,7 +109,7 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
   AppBar _appBar() {
     return AppBar(
       titleSpacing: 0.0,
-      centerTitle: true,
+      centerTitle: false,
       title: MainLogo(subtitle: 'homePage5'.tr()),
     );
   }
@@ -281,11 +281,6 @@ class _TroubleshootPageState extends State<TroubleshootPage> {
             child: InkWell(
               onTap: () async {
                 _mariaDBProvider.getAllVehicleModels();
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => DetailPage(result: _list[index], index: 2),
-                  ),
-                );
                 _bottomNavigationProvider.updatePage(2);
                 Navigator.of(context).push(
                   MaterialPageRoute(

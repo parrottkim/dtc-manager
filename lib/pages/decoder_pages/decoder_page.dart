@@ -18,9 +18,13 @@ class DecoderPage extends StatefulWidget {
 
 class _DecoderPageState extends State<DecoderPage> {
   late BottomNavigationProvider _bottomNavigationProvider;
+
+  // 페이지 컨트롤을 위한 controller
   late PageController _pageController;
+  // 현재 페이지 index
   late int _currentIndex;
 
+  // BottomNavigationBar 클릭시 애니메이션
   void onTabNav(int index) {
     _pageController.animateToPage(index,
         duration: Duration(milliseconds: 200), curve: Curves.ease);
@@ -64,6 +68,7 @@ class _DecoderPageState extends State<DecoderPage> {
   Widget _bodyWidget() {
     return PageView(
       controller: _pageController,
+      // 페이지가 변하면 Proivder에 값 변경 알림
       onPageChanged: (index) {
         setState(() => _bottomNavigationProvider.updatePage(index));
       },

@@ -157,10 +157,11 @@ class MariaDBRepository {
         if (filter == 'body_number') {
           final _whitespaceRE = RegExp(r"\s+");
           var split = value!.replaceAll(_whitespaceRE, ' ').split(' ');
-          print(split);
+          print(split[0] + split[1]);
           result = await conn.query(
-              'select * from logs left join models on logs.model_id = models.model_id left join dtc_codes on logs.dtc_code_id = dtc_codes.dtc_code_id where model_code = ? and body_no = ?',
-              [split[0], split[1]]);
+              "select * from logs left join models on logs.model_id = models.model_id left join dtc_codes on logs.dtc_code_id = dtc_codes.dtc_code_id where concat(model_code, ' ', body_no) like ?",
+              ['%${split[0] + split[1]}%']);
+          // 숫자만 쳤을 경우 분기
         } else {
           result = await conn.query(
               'select * from logs left join models on logs.model_id = models.model_id left join dtc_codes on logs.dtc_code_id = dtc_codes.dtc_code_id where ${filter} like ?',

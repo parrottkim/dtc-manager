@@ -21,7 +21,9 @@ class _CodeListPageState extends State<CodeListPage> {
 
   List<dynamic> _list = [];
 
+  // 필터 리스트
   late List<dynamic> _filters;
+  // 선택한 필터
   String? _selectedFilter;
 
   late TextEditingController _textEditingController;
@@ -34,17 +36,24 @@ class _CodeListPageState extends State<CodeListPage> {
     setState(() {
       _isLoading = true;
     });
+    // MariaDBProvider에 DTC 목록 요청
     await _mariaDBProvider
         .getAllDTCCodes(_isSearching, _textEditingController.text)
+        // 성공 시
         .then((_) {
       if (_mariaDBProvider.code != null) {
+        // 검색 중이 아니고, 필터가 선택된 상태이면
         if (!_isSearching && _selectedFilter != null) {
+          // foreach 문으로 DTC 목록 하나씩 반복
           for (var element in _mariaDBProvider.code!) {
+            // 선택된 필터와 같은 DTC 코드면
             if (element['sub_system'].toString() == _selectedFilter) {
+              // 리스트에 추가
               _list.add(element);
             }
           }
         } else {
+          // 그 외인 경우, 모든 DTC 코드를 리스트에 추가
           _list = _mariaDBProvider.code!;
         }
       }
@@ -53,18 +62,18 @@ class _CodeListPageState extends State<CodeListPage> {
     setState(() {
       _isLoading = false;
     });
-    print(_list.first[0].runtimeType);
     return _list;
   }
 
   @override
   void initState() {
     super.initState();
+    // 필터 리스트 초기화
     _filters = [
       {
-        'title': 'homePage4-1'.tr(),
-        'flag': 'Powertrain',
-        'bool': false,
+        'title': 'homePage4-1'.tr(), // 필터 명
+        'flag': 'Powertrain', // 필터 변수
+        'bool': false, // 필터 선택 여부
       },
       {
         'title': 'homePage4-2'.tr(),
@@ -98,7 +107,6 @@ class _CodeListPageState extends State<CodeListPage> {
     _mariaDBProvider = Provider.of<MariaDBProvider>(context, listen: false);
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
 
-    // get();
     _getData();
   }
 
@@ -120,41 +128,42 @@ class _CodeListPageState extends State<CodeListPage> {
     );
   }
 
-  List<Widget>? _appBarActions() {
-    return [
-      PopupMenuButton(
-        icon: Icon(Icons.more_vert),
-        itemBuilder: (context) {
-          return [
-            PopupMenuItem(
-              value: 0,
-              child: ListTile(
-                minLeadingWidth: 0.0,
-                leading: Icon(Icons.settings),
-                title: Text('settings'.tr()),
-              ),
-            ),
-          ];
-        },
-        onSelected: (value) {
-          if (value == 0) {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => SettingsPage()));
-          }
-        },
-      ),
-    ];
-  }
+  // AppBar 버튼 클릭 시, 설정 화면으로 이동 하기 위한 부분
+  // List<Widget>? _appBarActions() {
+  //   return [
+  //     PopupMenuButton(
+  //       icon: Icon(Icons.more_vert),
+  //       itemBuilder: (context) {
+  //         return [
+  //           PopupMenuItem(
+  //             value: 0,
+  //             child: ListTile(
+  //               minLeadingWidth: 0.0,
+  //               leading: Icon(Icons.settings),
+  //               title: Text('settings'.tr()),
+  //             ),
+  //           ),
+  //         ];
+  //       },
+  //       onSelected: (value) {
+  //         if (value == 0) {
+  //           Navigator.of(context)
+  //               .push(MaterialPageRoute(builder: (_) => SettingsPage()));
+  //         }
+  //       },
+  //     ),
+  //   ];
+  // }
 
   Widget _bodyWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _filterButton(),
+        _filterButton(), // 필터 버튼 Widget
         SizedBox(height: 12.0),
-        _searchWidget(),
+        _searchWidget(), // 검색 Widget
         SizedBox(height: 6.0),
-        _dtcCodeList(),
+        _dtcCodeList(), // DTC 리스트 Widget
       ],
     );
   }
@@ -185,6 +194,7 @@ class _CodeListPageState extends State<CodeListPage> {
             itemCount: _filters.length,
             itemBuilder: (context, index) {
               return InkWell(
+                // 필터 버튼 클릭 시
                 onTap: () {
                   setState(() {
                     _isSearching = false;
@@ -192,17 +202,22 @@ class _CodeListPageState extends State<CodeListPage> {
 
                     for (int i = 0; i < _filters.length; i++) {
                       if (i == index) {
+                        // 필터 리스트의 필터 선택 여부 reverse
                         _filters[i]['bool'] = !_filters[i]['bool'];
 
+                        // 필터 선택 여부가 true이면 selectedFilter 변수에 필터 변수 저장 / false이면 selectedFilter 변수에 null 저장
                         _filters[i]['bool']
                             ? _selectedFilter = _filters[i]['flag']
                             : _selectedFilter = null;
                       } else {
+                        // 나머지 필터는 false로 변경
                         _filters[i]['bool'] = false;
                       }
                     }
 
+                    // DTC 리스트 삭제 후
                     _list.clear();
+                    // 선택한 조건으로 DTC 리스트 로드
                     _getData();
                   });
                 },
@@ -214,10 +229,12 @@ class _CodeListPageState extends State<CodeListPage> {
                   decoration: BoxDecoration(
                     border: Border.all(
                         width: 0.5,
+                        // 필터 선택 여부가 false이면 테두리 black / true이면 테두리 투명
                         color: !_filters[index]['bool']
                             ? Colors.black
                             : Colors.transparent),
                     borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    // 필터 선택 여부가 false이면 배경색 투명 / true이면 배경색 black
                     color: !_filters[index]['bool']!
                         ? Colors.transparent
                         : Colors.black,
@@ -258,11 +275,13 @@ class _CodeListPageState extends State<CodeListPage> {
                 setState(() {
                   _isSearching = true;
                   _selectedFilter = null;
+
+                  // 모든 필터 선택 여부 false (필터 초기화)
                   for (int i = 0; i < _filters.length; i++) {
                     _filters[i]['bool'] = false;
                   }
 
-                  if (_list != null) _list.clear();
+                  _list.clear();
                   _getData();
                 });
               }
@@ -275,11 +294,13 @@ class _CodeListPageState extends State<CodeListPage> {
             setState(() {
               _isSearching = true;
               _selectedFilter = null;
+
+              // 모든 필터 선택 여부 false (필터 초기화)
               for (int i = 0; i < _filters.length; i++) {
                 _filters[i]['bool'] = false;
               }
 
-              if (_list != null) _list.clear();
+              _list.clear();
               _getData();
             });
           }
@@ -313,6 +334,7 @@ class _CodeListPageState extends State<CodeListPage> {
           return ListTile(
             onTap: () {
               _mariaDBProvider.getAllVehicleModels();
+              // 리스트 클릭 시, DetailPage로 이동
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => DetailPage(result: _list[index]),
